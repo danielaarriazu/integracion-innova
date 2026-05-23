@@ -11,8 +11,8 @@ const options = {
         'Sprint 1 — Semana 1. Los endpoints marcados con 🚧 están planificados para sprints futuros.',
     },
     servers: [
-  { url: 'https://chatbot-innova-backend.onrender.com', description: 'Servidor en producción (Render)' }
-  
+  { url: 'https://chatbot-innova-backend.onrender.com', description: 'Servidor en producción (Render)' },
+  { url: 'http://localhost:3000', description: 'Servidor local de desarrollo' }
 ],
     tags: [
       { name: 'Chatbot', description: 'Motor conversacional del bot' },
