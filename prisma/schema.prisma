@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. USUARIO — emprendedor que configura su chatbot
+model Usuario {
+  id            Int       @id @default(autoincrement())
+  nombre        String
+  email         String    @unique
+  password      String
+  rol           String    @default("emprendedor")
+  telefono      String?
+  estado        String    @default("activo")
+  fechaRegistro DateTime  @default(now())
+  ultimaSesion  DateTime?
+
+  configuracionBot ConfiguracionBot?
+  sesiones         SesionUsuario[]
+  consultas        Consulta[]
+  productos        Producto[]
+  categoriasFaq    CategoriaFaq[]
+
+  @@map("usuario")
+}
+
+// 2. CONFIGURACION_BOT — configuración del bot (1 a 1 con Usuario)
+model ConfiguracionBot {
+  id                   Int      @id @default(autoincrement())
+  usuarioId            Int      @unique
+  mensajeBienvenida    String?
+  mensajeFueraHorario  String?
+  horarioAtencion      String?
+  tono                 String?
+  menuInicial          String?
+  derivacionAutomatica Boolean  @default(false)
+  activo               Boolean  @default(true)
+  fechaCreacion        DateTime @default(now())
+  fechaActualizacion   DateTime @updatedAt
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("configuracion_bot")
+}
+
+// 3. SESION_USUARIO — sesiones activas del usuario
+model SesionUsuario {
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int
+  token       String
+  ip          String?
+  userAgent   String?
+  fechaInicio DateTime  @default(now())
+  fechaFin    DateTime?
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("sesion_usuario")
+}
+
+// 5. ESTADO_CONSULTA — estados posibles de una consulta
+model EstadoConsulta {
+  id            Int      @id @default(autoincrement())
+  nombre        String   // nueva | en_proceso | respondida | derivada | cerrada
+  descripcion   String?
+  fechaCreacion DateTime @default(now())
+
+  consultas Consulta[]
+
+  @@map("estado_consulta")
+}
+
+// 4. CONSULTA — núcleo del sistema, registra cada interacción
+model Consulta {
+  id                 Int       @id @default(autoincrement())
+  usuarioId          Int
+  estadoConsultaId   Int
+  tipoConsulta       String?
+  prioridad          String?
+  canal              String?
+  asunto             String?
+  descripcion        String?
+  derivadaA          String?
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime  @updatedAt
+  fechaCierre        DateTime?
+
+  usuario            Usuario          @relation(fields: [usuarioId], references: [id])
+  estadoConsulta     EstadoConsulta   @relation(fields: [estadoConsultaId], references: [id])
+  mensajes           Mensaje[]
+  lead               Lead?
+  consultaProductos  ConsultaProducto[]
+  consultaFaqs       ConsultaFaq[]
+
+  @@map("consulta")
+}
+
+// 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
+model Mensaje {
+  id                 Int      @id @default(autoincrement())
+  consultaId         Int
+  mensajePadreId     Int?
+  emisor             String
+  contenido          String
+  tipoMensaje        String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+  leido              Boolean  @default(false)
+
+  consulta     Consulta  @relation(fields: [consultaId], references: [id])
+  mensajePadre Mensaje?  @relation("MensajeHilo", fields: [mensajePadreId], references: [id])
+  respuestas   Mensaje[] @relation("MensajeHilo")
+  adjuntos     Adjunto[]
+
+  @@map("mensaje")
+}
+
+// 7. ADJUNTO — archivos adjuntos a mensajes
+model Adjunto {
+  id            Int      @id @default(autoincrement())
+  mensajeId     Int
+  url           String
+  tipo          String?
+  nombre        String?
+  tamano        String?
+  fechaCreacion DateTime @default(now())
+
+  mensaje Mensaje @relation(fields: [mensajeId], references: [id])
+
+  @@map("adjunto")
+}
+
+// 8. LEAD — datos de contacto capturados en la conversación (opcional por consulta)
+model Lead {
+  id                 Int      @id @default(autoincrement())
+  consultaId         Int      @unique
+  asignadoA          Int?
+  nombre             String?
+  email              String?
+  telefono           String?
+  empresa            String?
+  motivoInteres      String?
+  estado             String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+
+  @@map("lead")
+}
+
+// 9. PRODUCTO — catálogo del emprendedor
+model Producto {
+  id                 Int      @id @default(autoincrement())
+  usuarioId          Int
+  nombre             String
+  descripcion        String?
+  precio             Decimal?
+  stock              Int?
+  imagenUrl          String?
+  activo             Boolean  @default(true)
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  usuario           Usuario            @relation(fields: [usuarioId], references: [id])
+  consultaProductos ConsultaProducto[]
+
+  @@map("producto")
+}
+
+// 10. CONSULTA_PRODUCTO — tabla intermedia Consulta ↔ Producto (N a N)
+model ConsultaProducto {
+  id         Int     @id @default(autoincrement())
+  consultaId Int
+  productoId Int
+  cantidad   Int?
+  detalle    String?
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+  producto Producto @relation(fields: [productoId], references: [id])
+
+  @@map("consulta_producto")
+}
+
+// 11. CATEGORIA_FAQ — categorías de FAQs
+model CategoriaFaq {
+  id            Int      @id @default(autoincrement())
+  usuarioId     Int
+  nombre        String
+  descripcion   String?
+  activo        Boolean  @default(true)
+  fechaCreacion DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  faqs    Faq[]
+
+  @@map("categoria_faq")
+}
+
+// 12. FAQ — preguntas frecuentes con keywords para matching automático
+model Faq {
+  id                 Int      @id @default(autoincrement())
+  categoriaId        Int
+  pregunta           String
+  respuesta          String
+  keywords           String?
+  activo             Boolean  @default(true)
+  orden              Int?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  categoria    CategoriaFaq  @relation(fields: [categoriaId], references: [id])
+  consultaFaqs ConsultaFaq[]
+
+  @@map("faq")
+}
+
+// 13. CONSULTA_FAQ — tabla intermedia Consulta ↔ FAQ (N a N)
+model ConsultaFaq {
+  id            Int      @id @default(autoincrement())
+  consultaId    Int
+  faqId         Int
+  fechaConsulta DateTime @default(now())
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+  faq      Faq      @relation(fields: [faqId], references: [id])
+
+  @@map("consulta_faq")
+}

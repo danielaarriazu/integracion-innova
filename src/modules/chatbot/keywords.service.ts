@@ -1,56 +1,73 @@
 // Motor de chat por palabras clave — sin base de datos
-// Sesiones en memoria: se reinician si el servidor se reinicia
+// Las sesiones se guardan en memoria y se reinician si el servidor se reinicia
 
-const sesiones = new Map();
-
-function getSesion(sessionId) {
-  if (!sesiones.has(sessionId)) {
-    sesiones.set(sessionId, {
-      nombre: null,
-      ultimoTema: null,
-      noEntendidos: 0,
-    });
-  }
-  return sesiones.get(sessionId);
+interface Sesion {
+  nombre: string | null;
+  ultimoTema: string | null;
+  noEntendidos: number;
 }
 
-function normalizar(texto) {
+export interface ResultadoChat {
+  respuesta: string;
+  sessionId: string;
+  intencion: string;
+}
+
+interface Intencion {
+  id: string;
+  palabras: string[];
+  detectar?: (texto: string) => string | null;
+  responder: (sesion: Sesion, texto?: string) => string | null;
+}
+
+const sesiones = new Map<string, Sesion>();
+
+function getSesion(sessionId: string): Sesion {
+  if (!sesiones.has(sessionId)) {
+    sesiones.set(sessionId, { nombre: null, ultimoTema: null, noEntendidos: 0 });
+  }
+  return sesiones.get(sessionId)!;
+}
+
+export function normalizar(texto: string): string {
   return texto
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // saca tildes
-    .replace(/[^a-z0-9\s]/g, '')     // saca caracteres especiales
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
     .trim();
 }
 
-function contiene(texto, palabras) {
+function contiene(texto: string, palabras: string[]): boolean {
   return palabras.some((p) => texto.includes(p));
 }
 
-function saludoPorHora() {
+function saludoPorHora(): string {
   const h = new Date().getHours();
   if (h >= 6 && h < 12) return '¡Buenos días';
   if (h >= 12 && h < 20) return '¡Buenas tardes';
   return '¡Buenas noches';
 }
 
-// ─────────────────────────────────────────────
-// Intenciones definidas
-// ─────────────────────────────────────────────
-const INTENCIONES = [
+// — Métodos del UML: matchKeyword(texto) aplicado a cada intención —
+const INTENCIONES: Intencion[] = [
   {
     id: 'nombre',
     palabras: ['me llamo', 'mi nombre es', 'soy '],
     detectar(texto) {
-      const patrones = [/me llamo ([a-záéíóú\s]+)/i, /mi nombre es ([a-záéíóú\s]+)/i, /^soy ([a-záéíóú\s]+)/i];
+      const patrones = [
+        /me llamo ([a-záéíóú\s]+)/i,
+        /mi nombre es ([a-záéíóú\s]+)/i,
+        /^soy ([a-záéíóú\s]+)/i,
+      ];
       for (const p of patrones) {
         const m = texto.match(p);
         if (m) return m[1].trim().split(' ')[0];
       }
       return null;
     },
-    responder(sesion, texto) {
-      const nombre = this.detectar(texto);
+    responder(sesion, texto = '') {
+      const nombre = this.detectar!(texto);
       if (nombre) {
         sesion.nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
         return `¡Qué bueno conocerte, ${sesion.nombre}! 😊 ¿En qué puedo ayudarte hoy?`;
@@ -58,7 +75,6 @@ const INTENCIONES = [
       return null;
     },
   },
-
   {
     id: 'saludo',
     palabras: ['hola', 'buenas', 'buen dia', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'hi', 'buenass'],
@@ -76,7 +92,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'catalogo',
     palabras: ['catalogo', 'productos', 'servicios', 'que tienen', 'que venden', 'que ofrecen', 'ver todo', 'mostrar', 'lista'],
@@ -90,7 +105,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'precio',
     palabras: ['precio', 'precios', 'costo', 'costos', 'cuanto sale', 'cuanto cuesta', 'cuanto vale', 'cuanto cobran', 'tarifa', 'tarifas', 'valor'],
@@ -104,7 +118,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'presupuesto',
     palabras: ['presupuesto', 'cotizacion', 'cotizar', 'quote', 'cuanto me saldria', 'cuanto me costaria', 'presupuestar'],
@@ -120,7 +133,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'contacto',
     palabras: ['contacto', 'telefono', 'celular', 'llamar', 'whatsapp', 'comunicarme', 'hablar con', 'correo', 'email', 'mail', 'direccion', 'donde estan'],
@@ -135,7 +147,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'horario',
     palabras: ['horario', 'atienden', 'abierto', 'abren', 'cierran', 'cuando atienden', 'dias', 'lunes', 'sabado', 'domingo'],
@@ -149,7 +160,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'humano',
     palabras: ['persona', 'humano', 'asesor', 'vendedor', 'alguien', 'agente', 'equipo', 'hablar con una persona', 'quiero hablar'],
@@ -162,7 +172,6 @@ const INTENCIONES = [
       );
     },
   },
-
   {
     id: 'gracias',
     palabras: ['gracias', 'muchas gracias', 'grax', 'thank you', 'perfecto', 'genial', 'excelente', 'ok gracias', 'buenisimo'],
@@ -171,7 +180,6 @@ const INTENCIONES = [
       return `¡De nada${nombre}! 😊 Si necesitás algo más, acá estoy.`;
     },
   },
-
   {
     id: 'despedida',
     palabras: ['chau', 'bye', 'adios', 'hasta luego', 'nos vemos', 'hasta pronto', 'me voy'],
@@ -182,35 +190,29 @@ const INTENCIONES = [
   },
 ];
 
-// ─────────────────────────────────────────────
-// Función principal
-// ─────────────────────────────────────────────
-function procesarMensajeKeyword(sessionId, textoOriginal) {
+// — matchKeyword(texto): busca la intención que coincide con el mensaje —
+export function procesarMensajeKeyword(sessionId: string, textoOriginal: string): ResultadoChat {
   const sesion = getSesion(sessionId);
   const texto = normalizar(textoOriginal);
 
-  // Caso especial: intención de nombre (tiene lógica de extracción propia)
-  const intencionNombre = INTENCIONES.find((i) => i.id === 'nombre');
+  const intencionNombre = INTENCIONES.find((i) => i.id === 'nombre')!;
   const respuestaNombre = intencionNombre.responder(sesion, texto);
   if (respuestaNombre) {
     sesion.noEntendidos = 0;
     return { respuesta: respuestaNombre, sessionId, intencion: 'nombre' };
   }
 
-  // Buscar la primera intención que coincida
   for (const intencion of INTENCIONES) {
     if (intencion.id === 'nombre') continue;
     if (contiene(texto, intencion.palabras)) {
       sesion.noEntendidos = 0;
-      const respuesta = intencion.responder(sesion, texto);
+      const respuesta = intencion.responder(sesion, texto)!;
       return { respuesta, sessionId, intencion: intencion.id };
     }
   }
 
-  // Nadie entendió el mensaje
   sesion.noEntendidos += 1;
 
-  // Si ya no entendió 2 veces seguidas, ofrecer derivación
   if (sesion.noEntendidos >= 2) {
     sesion.noEntendidos = 0;
     const nombre = sesion.nombre ? `, ${sesion.nombre}` : '';
@@ -225,7 +227,6 @@ function procesarMensajeKeyword(sessionId, textoOriginal) {
     };
   }
 
-  // Primer no-entendido: respuesta suave con sugerencias
   const nombre = sesion.nombre ? `, ${sesion.nombre}` : '';
   return {
     respuesta:
@@ -235,5 +236,3 @@ function procesarMensajeKeyword(sessionId, textoOriginal) {
     intencion: 'no_entendido',
   };
 }
-
-module.exports = { procesarMensajeKeyword };
