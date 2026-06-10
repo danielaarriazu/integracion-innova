@@ -280,6 +280,29 @@
       font-size: 14px;
     }
 
+    /* ── Auth status ── */
+    #auth-status {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      display: none;
+    }
+    #auth-status.visible { display: block; }
+    #auth-status .auth-row {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    #auth-status .auth-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--badge-db); flex-shrink: 0;
+    }
+    #auth-status .auth-label { color: var(--badge-db); font-weight: 700; }
+    #auth-status .auth-token {
+      font-family: 'Menlo', 'Consolas', monospace;
+      color: #94a3b8; font-size: 10px;
+      word-break: break-all; margin-top: 4px;
+    }
+
     /* ── Request log ── */
     #request-log {
       background: #0f172a;
@@ -389,6 +412,14 @@
           </div>
         </button>
       </div>
+      <div id="auth-status">
+        <div class="auth-row">
+          <div class="auth-dot"></div>
+          <span class="auth-label">Sesión activa</span>
+          <span>&middot; rol: emprendedor</span>
+        </div>
+        <div class="auth-token" id="auth-token-preview"></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -455,6 +486,12 @@
 <script>
   const BASE_URL = 'https://chatbot-innova-backend.onrender.com';
 
+  const TOKENS = {
+    1: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJnYXJjaWFAZGVtby5jb20iLCJyb2wiOiJlbXByZW5kZWRvciIsImlhdCI6MTc4MTEwNzI5MCwiZXhwIjoxODEyNjQzMjkwfQ.43FMlymh40ZEhXJBi09Di47FiqvVp72AFKh-LJICCS8',
+    2: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJsb3BlekBkZW1vLmNvbSIsInJvbCI6ImVtcHJlbmRlZG9yIiwiaWF0IjoxNzgxMTA3MjkwLCJleHAiOjE4MTI2NDMyOTB9.ohMa8937NL05rSTvXlkP_aMeWedxnWF4LQnPZScS9U0',
+    3: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJtaWFAZGVtby5jb20iLCJyb2wiOiJlbXByZW5kZWRvciIsImlhdCI6MTc4MTEwNzI5MCwiZXhwIjoxODEyNjQzMjkwfQ.odsCE2mOmrrf6_GO2wWzkS1fzv8j7NM_RMZaadyHfmE',
+  };
+
   const EMPRENDEDORES = {
     1: {
       nombre: 'Panadería García',
@@ -475,6 +512,7 @@
 
   let usuarioIdActual = null;
   let sessionId = null;
+  let tokenActual = null;
   let cargandoChat = false;
   let totalLlamadas = 0;
 
@@ -503,6 +541,12 @@
     document.getElementById('log-entries').innerHTML = '';
     totalLlamadas = 0;
     document.getElementById('log-count').textContent = '0 llamadas';
+
+    // Cargar token hardcodeado y registrar en log
+    tokenActual = TOKENS[id];
+    document.getElementById('auth-status').classList.add('visible');
+    document.getElementById('auth-token-preview').textContent = 'Token: ' + tokenActual.slice(0, 25) + '...';
+    logRequest('Sesión iniciada', '—', 'token cargado (hardcoded demo)');
 
     // Chips de sugerencias
     const chipsEl = document.getElementById('quick-chips');
@@ -541,7 +585,10 @@
     try {
       const res = await fetch(`${BASE_URL}/api/chatbot/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenActual}`,
+        },
         body: JSON.stringify({ mensaje, sessionId, usuarioId: usuarioIdActual }),
       });
       const data = await res.json();
@@ -583,7 +630,9 @@
     section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     try {
-      const res = await fetch(`${BASE_URL}/api/catalog/productos?usuarioId=${usuarioIdActual}`);
+      const res = await fetch(`${BASE_URL}/api/catalog/productos?usuarioId=${usuarioIdActual}`, {
+        headers: { 'Authorization': `Bearer ${tokenActual}` },
+      });
       const data = await res.json();
       if (!res.ok) {
         content.innerHTML = `<div class="catalog-empty">${data.error || 'Error al cargar catálogo'}</div>`;
@@ -712,7 +761,7 @@
       <span class="log-time">${time}</span>
       <span class="log-action">${esc(accion)}</span>
       <span class="log-arrow">→</span>
-      <span class="${metodo === 'POST' ? 'log-method-post' : 'log-method-get'}">${metodo}</span>
+      <span class="${metodo === 'POST' ? 'log-method-post' : metodo === 'GET' ? 'log-method-get' : ''}" style="${metodo === '—' ? 'color:#475569' : ''}">${metodo}</span>
       <span class="log-route">${esc(ruta)}</span>
     `;
 
