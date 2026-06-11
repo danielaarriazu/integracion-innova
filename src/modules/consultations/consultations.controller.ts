@@ -58,3 +58,23 @@ export const derivarConsulta = async (req: AuthRequest, res: Response): Promise<
     res.status(500).json({ error: err instanceof Error ? err.message : 'Error interno' });
   }
 };
+
+// M4 — tracking silencioso: cliente vio el detalle de un producto
+export const postConsultaProducto = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const consultaId = parseInt(req.params.id);
+    const { productoId, cantidad } = req.body;
+    if (!productoId || isNaN(parseInt(productoId))) {
+      res.status(400).json({ error: 'productoId es requerido' });
+      return;
+    }
+    const registro = await consultationsService.registrarProductoConsultado(
+      consultaId,
+      parseInt(productoId),
+      cantidad ? parseInt(cantidad) : 1,
+    );
+    res.status(201).json(registro);
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Error interno' });
+  }
+};

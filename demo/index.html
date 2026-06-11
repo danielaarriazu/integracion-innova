@@ -960,7 +960,7 @@
               <div class="vp-icon dm-icon-orange">&#128172;</div>
               <div>
                 <div class="vp-title">Consultas <span class="dm-entity dm-entity-orange">CONSULTA</span></div>
-                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">POST /api/consultations</span><span class="ep-tag ep-pend">GET /api/consultations · requiere JWT+DB</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">POST /api/consultations</span><span class="ep-tag ep-avail">POST /{id}/productos · M4</span><span class="ep-tag ep-pend">GET /api/consultations · requiere JWT+DB</span></div>
                 <div class="vp-sub" style="margin-top:4px;">Registro de conversaciones realizadas por tus clientes al chatbot.</div>
               </div>
             </div>
@@ -1650,6 +1650,17 @@
       `;
       content.innerHTML = '';
       content.appendChild(detail);
+
+      // Tracking M4 — silencioso, el cliente no lo ve
+      if (consultaId) {
+        fetch(`${BASE_URL}/api/consultations/${consultaId}/productos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productoId: id, cantidad: 1 }),
+        })
+        .then(r => logRequest('POST', `/api/consultations/${consultaId}/productos`, r.status))
+        .catch(() => logRequest('POST', `/api/consultations/${consultaId}/productos`, 0));
+      }
     } catch (e) {
       content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">No se pudo conectar.</div>';
       logRequest('GET', `/api/catalog/productos/${id}`, 0);

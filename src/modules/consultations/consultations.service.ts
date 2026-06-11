@@ -88,3 +88,14 @@ export const obtenerConsulta = async (id: number) => {
     include: { estadoConsulta: true, mensajes: true },
   });
 };
+
+// M4 — registra que en esta consulta el cliente vio un producto específico
+export const registrarProductoConsultado = async (consultaId: number, productoId: number, cantidad = 1) => {
+  try {
+    return await prisma.consultaProducto.create({
+      data: { consultaId, productoId, cantidad },
+    });
+  } catch {
+    return { id: Date.now(), consultaId, productoId, cantidad, detalle: null, _mock: true };
+  }
+};

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verificarToken, optionalToken } from '../../middlewares/auth.middleware';
-import { getConsultas, postConsulta, getConsulta, cerrarConsulta, derivarConsulta } from './consultations.controller';
+import { getConsultas, postConsulta, getConsulta, cerrarConsulta, derivarConsulta, postConsultaProducto } from './consultations.controller';
 
 const router = Router();
 
@@ -176,5 +176,46 @@ router.patch('/:id/cerrar', cerrarConsulta);
  *         description: Consulta derivada
  */
 router.patch('/:id/derivar', derivarConsulta);
+
+/**
+ * @swagger
+ * /api/consultations/{id}/productos:
+ *   post:
+ *     tags: [Consultations]
+ *     summary: Registrar producto consultado — tracking M4
+ *     description: |
+ *       Registra silenciosamente que en la consulta `{id}`, el cliente abrió el detalle de un producto.
+ *       El frontend lo llama en segundo plano cada vez que el cliente hace clic en un producto del catálogo.
+ *       Crea una fila en `CONSULTA_PRODUCTO` y alimenta la métrica **M4 Catálogo** del Plan de Tracking.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de la consulta activa (devuelto por POST /api/consultations)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [productoId]
+ *             properties:
+ *               productoId:
+ *                 type: integer
+ *                 example: 102
+ *                 description: ID del producto que el cliente consultó
+ *               cantidad:
+ *                 type: integer
+ *                 example: 1
+ *                 description: Cantidad de veces que lo consultó (default 1)
+ *     responses:
+ *       201:
+ *         description: Registro creado en CONSULTA_PRODUCTO
+ *       400:
+ *         description: productoId es requerido
+ */
+router.post('/:id/productos', postConsultaProducto);
 
 export default router;
