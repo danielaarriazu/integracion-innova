@@ -475,6 +475,73 @@
     .dfi-m  { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
     .dfi-m.get { background: #dcfce7; color: #15803d; }
 
+    /* ── Vistas del dashboard (SPA) ── */
+    .dash-view.hidden { display: none !important; }
+    .view-placeholder { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .vp-header { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 14px; }
+    .vp-icon   { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .vp-title  { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .vp-sub    { font-size: 13px; color: var(--muted); }
+    .vp-body   { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .vp-note   { background: #fefce8; border: 1px solid #fde047; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #713f12; }
+    .vp-field  { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 12px; }
+    .vp-field:last-child { border-bottom: none; }
+    .vp-field-label { color: var(--muted); font-weight: 500; flex-shrink: 0; }
+    .vp-field-value { font-weight: 600; text-align: right; }
+    .vp-field-value.ok    { color: var(--emp); }
+    .vp-field-value.muted { color: var(--muted); font-weight: 400; }
+    .vp-field-value.mono  { font-family: 'Menlo','Consolas',monospace; font-size: 11px; }
+    /* Resumen: KPI cards */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 12px; padding: 20px; }
+    .metric-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .mc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+    .mc-value { font-size: 28px; font-weight: 900; line-height: 1; }
+    .mc-value.blue   { color: var(--cli); }
+    .mc-value.green  { color: var(--emp); }
+    .mc-value.orange { color: #ea580c; }
+    .mc-value.red    { color: #ef4444; }
+    .mc-sub { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+    .mc-tag { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .mc-tag.blue   { background: #eff6ff; color: var(--cli); }
+    .mc-tag.orange { background: #fff7ed; color: #ea580c; }
+    .mc-tag.green  { background: #f0fdf4; color: var(--emp); }
+    .mc-tag.red    { background: #fef2f2; color: #dc2626; }
+    /* Resumen: funnel + preferencias */
+    .resumen-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 20px 16px; }
+    @media (max-width: 680px) { .resumen-charts { grid-template-columns: 1fr; } }
+    .rc-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    .rc-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .rc-sub   { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+    .funnel-item { margin-bottom: 11px; }
+    .fi-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .fi-label  { color: var(--text); font-weight: 500; }
+    .fi-val    { font-weight: 700; }
+    .bar-bg    { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; }
+    .menu-item { margin-bottom: 10px; }
+    .mi-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .mi-pct    { font-weight: 700; }
+    .bar-bg.thin { height: 6px; }
+    /* Resumen: otras métricas */
+    .other-metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 0 20px 16px; }
+    .om-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+    .om-icon  { font-size: 20px; flex-shrink: 0; }
+    .om-info  { flex: 1; min-width: 0; }
+    .om-label { font-size: 11px; color: var(--muted); line-height: 1.3; }
+    .om-val   { font-size: 18px; font-weight: 800; }
+    .om-tag   { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 10px; background: #f1f5f9; color: var(--muted); vertical-align: middle; }
+    .resumen-note { margin: 0 20px 20px; }
+
+    /* Endpoint status indicators */
+    .ep-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; font-family: 'Menlo','Consolas',monospace; white-space: nowrap; }
+    .ep-tag::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .ep-avail { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .ep-avail::before { background: #22c55e; }
+    .ep-pend  { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+    .ep-pend::before  { background: #f97316; animation: blink-ep .9s infinite alternate; }
+    @keyframes blink-ep { from { opacity: 1; } to { opacity: .2; } }
+    .ep-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
     /* Toast */
     #error-toast {
       display: none; position: fixed; bottom: 20px; right: 20px;
@@ -641,20 +708,20 @@
           </div>
         </div>
 
-        <nav class="dash-nav">
-          <a class="dash-nav-item active">&#127968; Inicio</a>
+        <nav class="dash-nav" id="dash-nav">
+          <a class="dash-nav-item active" data-vista="inicio" onclick="navegarA('inicio')">&#127968; Inicio</a>
           <a class="dash-nav-item" onclick="irAlChat()">&#128172; Chat en vivo</a>
           <div class="dash-nav-section">Configuración</div>
-          <a class="dash-nav-item">&#129302; Configuración del Bot</a>
-          <a class="dash-nav-item">&#128230; Productos</a>
-          <a class="dash-nav-item">&#10067; FAQs</a>
+          <a class="dash-nav-item" data-vista="config-bot" onclick="navegarA('config-bot')">&#129302; Configuración del Bot</a>
+          <a class="dash-nav-item" data-vista="productos" onclick="navegarA('productos')">&#128230; Productos</a>
+          <a class="dash-nav-item" data-vista="faqs" onclick="navegarA('faqs')">&#10067; FAQs</a>
           <div class="dash-nav-section">Gestión</div>
-          <a class="dash-nav-item">&#128172; Consultas</a>
-          <a class="dash-nav-item">&#128100; Leads</a>
+          <a class="dash-nav-item" data-vista="consultas" onclick="navegarA('consultas')">&#128172; Consultas</a>
+          <a class="dash-nav-item" data-vista="leads" onclick="navegarA('leads')">&#128100; Leads</a>
           <div class="dash-nav-section">Métricas</div>
-          <a class="dash-nav-item">&#128202; Resumen</a>
+          <a class="dash-nav-item" data-vista="resumen" onclick="navegarA('resumen')">&#128202; Resumen</a>
           <div class="dash-nav-section">Sistema</div>
-          <a class="dash-nav-item">&#128100; Mi perfil</a>
+          <a class="dash-nav-item" data-vista="perfil" onclick="navegarA('perfil')">&#128100; Mi perfil</a>
           <a class="dash-nav-item" onclick="volverInicio()">&#128682; Cerrar sesión</a>
         </nav>
 
@@ -667,11 +734,11 @@
       <!-- Main -->
       <main class="dash-main">
 
-        <!-- Top bar -->
+        <!-- Top bar (siempre visible) -->
         <div class="dash-topbar">
           <div>
-            <div class="dash-page-title">Panel del Emprendedor</div>
-            <div class="dash-page-sub">Gestiona tu chatbot y tu negocio desde un solo lugar.</div>
+            <div class="dash-page-title" id="dash-page-title">Panel del Emprendedor</div>
+            <div class="dash-page-sub" id="dash-page-sub">Gestiona tu chatbot y tu negocio desde un solo lugar.</div>
           </div>
           <div class="dash-topbar-right">
             <div class="dash-session-badge"><span class="dash-session-dot"></span>Sesión activa</div>
@@ -679,120 +746,437 @@
           </div>
         </div>
 
-        <!-- Profile card (llenado por JS) -->
-        <div id="dash-profile-card" class="dash-profile-card"></div>
+        <!-- ── VISTA: INICIO ── -->
+        <div id="view-inicio" class="dash-view">
 
-        <!-- Módulos por entidad -->
-        <div class="dash-modules">
+          <div id="dash-profile-card" class="dash-profile-card"></div>
 
-          <div class="dash-module-card">
-            <div class="dm-header">
-              <div class="dm-icon dm-icon-green">&#129302;</div>
-              <div><div class="dm-title">Configuración del Bot</div><span class="dm-entity dm-entity-orange">Entidad: CONFIGURACION_BOT</span></div>
+          <div class="dash-modules">
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-green">&#129302;</div>
+                <div>
+                  <div class="dm-title">Configuración del Bot</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-orange">Entidad: CONFIGURACION_BOT</span><span class="ep-tag ep-pend">sin endpoint</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Personaliza cómo se comunica tu chatbot con tus clientes.</div>
+              <ul class="dm-list">
+                <li>Mensaje de bienvenida</li><li>Horario de atención</li><li>Tono y estilo</li><li>Menú inicial</li>
+              </ul>
+              <div class="dm-wip">&#128296; En construcción &mdash; La integración con la base de datos estará disponible próximamente.</div>
+              <button class="dm-btn dm-btn-green" onclick="navegarA('config-bot')">Configurar</button>
             </div>
-            <div class="dm-desc">Personaliza cómo se comunica tu chatbot con tus clientes.</div>
-            <ul class="dm-list">
-              <li>Mensaje de bienvenida</li><li>Horario de atención</li><li>Tono y estilo</li><li>Menú inicial</li>
-            </ul>
-            <div class="dm-wip">&#128296; En construcción &mdash; La integración con la base de datos estará disponible próximamente.</div>
-            <button class="dm-btn dm-btn-green">Configurar</button>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-blue">&#128230;</div>
+                <div>
+                  <div class="dm-title">Productos</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-blue">Entidad: PRODUCTO</span><span class="ep-tag ep-avail">GET /api/catalog/productos</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Gestiona los productos o servicios que ofreces a tus clientes.</div>
+              <div class="dm-empty">
+                <div class="dm-empty-icon">&#128230;</div>
+                <div class="dm-empty-msg">Aún no hay productos cargados</div>
+                <div class="dm-empty-sub">Podrás agregar y administrar tus productos aquí.</div>
+              </div>
+              <button class="dm-btn dm-btn-blue" onclick="navegarA('productos')">Ver productos</button>
+            </div>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-purple">&#10067;</div>
+                <div>
+                  <div class="dm-title">Preguntas Frecuentes (FAQs)</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-purple">Entidad: FAQ</span><span class="ep-tag ep-avail">GET /api/faqs</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Crea y administra las preguntas frecuentes de tus clientes.</div>
+              <div class="dm-empty">
+                <div class="dm-empty-icon">&#10067;</div>
+                <div class="dm-empty-msg">Aún no hay FAQs creadas</div>
+                <div class="dm-empty-sub">Podrás agregar preguntas y respuestas para que tu bot las use.</div>
+              </div>
+              <button class="dm-btn dm-btn-purple" onclick="navegarA('faqs')">Ver FAQs</button>
+            </div>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-orange">&#128172;</div>
+                <div>
+                  <div class="dm-title">Consultas Recibidas</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-orange">Entidad: CONSULTA</span><span class="ep-tag ep-pend">sin endpoint</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Revisa las consultas que tus clientes han realizado al chatbot.</div>
+              <div class="dm-stat-list">
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#3b82f6"></span><span>Nuevas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#8b5cf6"></span><span>En proceso</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#16a34a"></span><span>Respondidas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#f59e0b"></span><span>Derivadas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#ef4444"></span><span>Cerradas</span><span class="dm-stat-val">0</span></div>
+              </div>
+              <button class="dm-btn dm-btn-orange" onclick="navegarA('consultas')">Ver consultas</button>
+            </div>
           </div>
 
-          <div class="dash-module-card">
-            <div class="dm-header">
-              <div class="dm-icon dm-icon-blue">&#128230;</div>
-              <div><div class="dm-title">Productos</div><span class="dm-entity dm-entity-blue">Entidad: PRODUCTO</span></div>
+          <div class="dash-bottom">
+            <div class="dash-resumen">
+              <div class="dr-header">Resumen General <span class="dr-sim-badge">datos simulados</span></div>
+              <div class="dr-stats">
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#16a34a;">&#128172;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Consultas totales<br>Este mes</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#2563eb;">&#128100;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Leads capturados<br>Este mes</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#7c3aed;">&#128722;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Productos activos</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#ea580c;">&#129302;</div><div class="dr-stat-num dr-stat-orange">100%</div><div class="dr-stat-label">Disponibilidad del bot<br>(Simulado)</div></div>
+              </div>
             </div>
-            <div class="dm-desc">Gestiona los productos o servicios que ofreces a tus clientes.</div>
-            <div class="dm-empty">
-              <div class="dm-empty-icon">&#128230;</div>
-              <div class="dm-empty-msg">Aún no hay productos cargados</div>
-              <div class="dm-empty-sub">Podrás agregar y administrar tus productos aquí.</div>
+            <div class="dash-integrations">
+              <div class="di-header">Integraciones</div>
+              <div class="di-item">
+                <div class="di-icon">&#128241;</div>
+                <div class="di-info"><div class="di-name">WhatsApp (Mock)</div><div class="di-sub">Simulación activa de mensajes entrantes</div></div>
+                <span class="di-badge ok">Conectado</span>
+              </div>
+              <div class="di-item">
+                <div class="di-icon">&#127760;</div>
+                <div class="di-info"><div class="di-name">Sitio Web</div><div class="di-sub">Integración con tu sitio (próximamente)</div></div>
+                <span class="di-badge pending">Pendiente</span>
+              </div>
             </div>
-            <button class="dm-btn dm-btn-blue">Ver productos</button>
           </div>
 
-          <div class="dash-module-card">
-            <div class="dm-header">
-              <div class="dm-icon dm-icon-purple">&#10067;</div>
-              <div><div class="dm-title">Preguntas Frecuentes (FAQs)</div><span class="dm-entity dm-entity-purple">Entidad: FAQ</span></div>
+          <div class="dash-footer-info">
+            <div class="dfi-left">
+              <div class="dfi-title">&#128712; ¿Qué es cada sección?</div>
+              <div class="dfi-grid">
+                <div><strong>Configuración del Bot:</strong> Personaliza el comportamiento y mensajes de tu chatbot.</div>
+                <div><strong>Consultas:</strong> Visualiza y gestiona las conversaciones con tus clientes.</div>
+                <div><strong>Productos:</strong> Administra tu catálogo para que el bot pueda mostrarlo.</div>
+                <div><strong>Leads:</strong> Revisa los datos de contacto capturados por el chatbot.</div>
+                <div><strong>FAQs:</strong> Crea respuestas automáticas para las preguntas más frecuentes.</div>
+              </div>
             </div>
-            <div class="dm-desc">Crea y administra las preguntas frecuentes de tus clientes.</div>
-            <div class="dm-empty">
-              <div class="dm-empty-icon">&#10067;</div>
-              <div class="dm-empty-msg">Aún no hay FAQs creadas</div>
-              <div class="dm-empty-sub">Podrás agregar preguntas y respuestas para que tu bot las use.</div>
+            <div class="dfi-right">
+              <div class="dfi-title">&#128279; Endpoints relacionados</div>
+              <div class="dfi-ep-list">
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/catalog/productos</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/consultations</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/faqs</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/configuracion-bot</div>
+              </div>
             </div>
-            <button class="dm-btn dm-btn-purple">Ver FAQs</button>
           </div>
 
-          <div class="dash-module-card">
-            <div class="dm-header">
-              <div class="dm-icon dm-icon-orange">&#128172;</div>
-              <div><div class="dm-title">Consultas Recibidas</div><span class="dm-entity dm-entity-orange">Entidad: CONSULTA</span></div>
-            </div>
-            <div class="dm-desc">Revisa las consultas que tus clientes han realizado al chatbot.</div>
-            <div class="dm-stat-list">
-              <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#3b82f6"></span><span>Nuevas</span><span class="dm-stat-val">0</span></div>
-              <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#8b5cf6"></span><span>En proceso</span><span class="dm-stat-val">0</span></div>
-              <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#16a34a"></span><span>Respondidas</span><span class="dm-stat-val">0</span></div>
-              <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#f59e0b"></span><span>Derivadas</span><span class="dm-stat-val">0</span></div>
-              <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#ef4444"></span><span>Cerradas</span><span class="dm-stat-val">0</span></div>
-            </div>
-            <button class="dm-btn dm-btn-orange">Ver consultas</button>
-          </div>
+        </div><!-- /view-inicio -->
 
+        <!-- ── VISTA: CONFIGURACIÓN DEL BOT ── -->
+        <div id="view-config-bot" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-green">&#129302;</div>
+              <div>
+                <div class="vp-title">Configuración del Bot <span class="dm-entity dm-entity-orange">CONFIGURACION_BOT</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-pend">sin endpoint · GET /api/configuracion-bot</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Parámetros actuales del chatbot para este negocio.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="vp-field">
+                <span class="vp-field-label">Mensaje de bienvenida</span>
+                <span class="vp-field-value" style="font-size:12px;max-width:55%;">¡Hola! Soy el asistente virtual. ¿En qué puedo ayudarte hoy?</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Horario de atención</span>
+                <span class="vp-field-value muted">Lunes a viernes &middot; 9 hs a 18 hs</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Tono y estilo</span>
+                <span class="vp-field-value muted">Informal &middot; Vos a vos</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Menú inicial</span>
+                <span class="vp-field-value muted" style="font-size:12px;">Ver catálogo · FAQs · Hablar con persona</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Derivación automática</span>
+                <span class="vp-field-value ok">Activada</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Fallback habilitado</span>
+                <span class="vp-field-value ok">Sí</span>
+              </div>
+            </div>
+            <div class="vp-note">&#128296; La edición de estos valores estará disponible en próximos sprints una vez integrada la base de datos. Entidad: <strong>CONFIGURACION_BOT</strong> del DER.</div>
+          </div>
         </div>
 
-        <!-- Resumen + Integraciones -->
-        <div class="dash-bottom">
-
-          <div class="dash-resumen">
-            <div class="dr-header">Resumen General <span class="dr-sim-badge">datos simulados</span></div>
-            <div class="dr-stats">
-              <div class="dr-stat"><div class="dr-stat-icon" style="color:#16a34a;">&#128172;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Consultas totales<br>Este mes</div></div>
-              <div class="dr-stat"><div class="dr-stat-icon" style="color:#2563eb;">&#128100;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Leads capturados<br>Este mes</div></div>
-              <div class="dr-stat"><div class="dr-stat-icon" style="color:#7c3aed;">&#128722;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Productos activos</div></div>
-              <div class="dr-stat"><div class="dr-stat-icon" style="color:#ea580c;">&#129302;</div><div class="dr-stat-num dr-stat-orange">100%</div><div class="dr-stat-label">Disponibilidad del bot<br>(Simulado)</div></div>
+        <!-- ── VISTA: PRODUCTOS ── -->
+        <div id="view-productos" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-blue">&#128230;</div>
+              <div>
+                <div class="vp-title">Productos <span class="dm-entity dm-entity-blue">PRODUCTO</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">GET /api/catalog/productos</span><span class="ep-tag ep-avail">GET /api/catalog/productos/{id}</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Catálogo de productos o servicios de tu emprendimiento.</div>
+              </div>
             </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#128230;</div>
+                <div class="dm-empty-msg">Aún no hay productos cargados</div>
+                <div class="dm-empty-sub">Los productos se integrarán desde la base de datos mediante <span style="font-family:monospace;font-size:11px;">GET /api/catalog/productos</span></div>
+              </div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint disponible: <strong>GET /api/catalog/productos?usuarioId={id}</strong> · La administración completa se implementará en próximos sprints.</div>
           </div>
-
-          <div class="dash-integrations">
-            <div class="di-header">Integraciones</div>
-            <div class="di-item">
-              <div class="di-icon">&#128241;</div>
-              <div class="di-info"><div class="di-name">WhatsApp (Mock)</div><div class="di-sub">Simulación activa de mensajes entrantes</div></div>
-              <span class="di-badge ok">Conectado</span>
-            </div>
-            <div class="di-item">
-              <div class="di-icon">&#127760;</div>
-              <div class="di-info"><div class="di-name">Sitio Web</div><div class="di-sub">Integración con tu sitio (próximamente)</div></div>
-              <span class="di-badge pending">Pendiente</span>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Footer info -->
-        <div class="dash-footer-info">
-          <div class="dfi-left">
-            <div class="dfi-title">&#128712; ¿Qué es cada sección?</div>
-            <div class="dfi-grid">
-              <div><strong>Configuración del Bot:</strong> Personaliza el comportamiento y mensajes de tu chatbot.</div>
-              <div><strong>Consultas:</strong> Visualiza y gestiona las conversaciones con tus clientes.</div>
-              <div><strong>Productos:</strong> Administra tu catálogo para que el bot pueda mostrarlo.</div>
-              <div><strong>Leads:</strong> Revisa los datos de contacto capturados por el chatbot.</div>
-              <div><strong>FAQs:</strong> Crea respuestas automáticas para las preguntas más frecuentes.</div>
+        <!-- ── VISTA: FAQs ── -->
+        <div id="view-faqs" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-purple">&#10067;</div>
+              <div>
+                <div class="vp-title">Preguntas Frecuentes <span class="dm-entity dm-entity-purple">FAQ</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">GET /api/faqs</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Respuestas automáticas que el bot usa para atender consultas repetitivas.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#10067;</div>
+                <div class="dm-empty-msg">Aún no hay FAQs creadas</div>
+                <div class="dm-empty-sub">El 70% de las consultas son preguntas repetitivas: horarios, envíos, precios. Configuralas aquí.</div>
+              </div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint: <strong>GET /api/faqs?usuarioId={id}</strong> · La administración de FAQs se implementará junto con la entidad <strong>CATEGORIA_FAQ</strong>.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: CONSULTAS ── -->
+        <div id="view-consultas" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-orange">&#128172;</div>
+              <div>
+                <div class="vp-title">Consultas <span class="dm-entity dm-entity-orange">CONSULTA</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-pend">sin endpoint · GET /api/consultations</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Registro de conversaciones realizadas por tus clientes al chatbot.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="vp-field"><span class="vp-field-label">Nuevas</span><span class="vp-field-value" style="color:#3b82f6;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">En proceso</span><span class="vp-field-value" style="color:#8b5cf6;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Respondidas</span><span class="vp-field-value ok">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Derivadas a humano</span><span class="vp-field-value" style="color:#f59e0b;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Cerradas</span><span class="vp-field-value muted">0</span></div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint: <strong>GET /api/consultations</strong> · Los estados provienen de la entidad <strong>ESTADO_CONSULTA</strong> del DER.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: LEADS ── -->
+        <div id="view-leads" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon" style="background:#faf5ff;">&#128100;</div>
+              <div>
+                <div class="vp-title">Leads <span class="dm-entity dm-entity-purple">LEAD</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-pend">sin endpoint · GET /api/leads</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Datos de contacto de potenciales clientes capturados por el chatbot.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#128100;</div>
+                <div class="dm-empty-msg">No hay leads registrados aún</div>
+                <div class="dm-empty-sub">Cuando un cliente deje sus datos de contacto en el chat, aparecerá aquí.</div>
+              </div>
+            </div>
+            <div class="vp-note">Los leads se capturan cuando el usuario completa el flujo de contacto comercial. Entidades relacionadas: <strong>LEAD</strong> y <strong>CONSULTA</strong> del DER.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: RESUMEN DE MÉTRICAS ── -->
+        <div id="view-resumen" class="dash-view hidden">
+
+          <div style="padding:16px 20px 0;">
+            <div style="background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#92400e;">
+              <span style="font-size:16px;">&#128202;</span>
+              <span><strong>Todos los datos son simulados.</strong> Los eventos de tracking (session_started, catalog_viewed, fallback_triggered, etc.) aún no tienen endpoints reales. Estructura lista para integración.</span>
+              <span class="ep-tag ep-pend" style="flex-shrink:0;margin-left:auto;">sin tracking endpoints</span>
             </div>
           </div>
-          <div class="dfi-right">
-            <div class="dfi-title">&#128279; Endpoints relacionados</div>
-            <div class="dfi-ep-list">
-              <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/catalog/productos</div>
-              <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/consultations</div>
-              <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/faqs</div>
-              <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/configuracion-bot</div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="mc-label">M1 &middot; Alcance</div>
+              <div class="mc-value blue">183</div>
+              <div class="mc-sub">Sesiones iniciadas este mes</div>
+              <span class="mc-tag blue">session_started</span>
             </div>
+            <div class="metric-card">
+              <div class="mc-label">Leads generados</div>
+              <div class="mc-value green">23</div>
+              <div class="mc-sub">Datos de contacto capturados</div>
+              <span class="mc-tag green">M9 &middot; human_derivation</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">Tasa de conversión</div>
+              <div class="mc-value green">25.7%</div>
+              <div class="mc-sub">Consultas que llegaron a compra</div>
+              <span class="mc-tag green">47 / 183 usuarios</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">M7 &middot; Fallback</div>
+              <div class="mc-value orange">8.2%</div>
+              <div class="mc-sub">Mensajes no entendidos por el bot</div>
+              <span class="mc-tag orange">fallback_triggered</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">Abandonos</div>
+              <div class="mc-value red">96</div>
+              <div class="mc-sub">Usuarios sin completar ninguna acción</div>
+              <span class="mc-tag red">M2 + M11</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">M8 &middot; Intención Comercial</div>
+              <div class="mc-value blue">47</div>
+              <div class="mc-sub">Consultan precio o inician presupuesto</div>
+              <span class="mc-tag blue">quote_initiated</span>
+            </div>
+          </div>
+
+          <div class="resumen-charts">
+
+            <div class="rc-card">
+              <div class="rc-title">M13 &middot; Embudo de conversión</div>
+              <div class="rc-sub">De la sesión a la compra &middot; datos simulados</div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Inicio (sesión)</span><span class="fi-val">183</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:100%;background:#2563eb;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Catálogo (M4)</span><span class="fi-val">87</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:47.5%;background:#7c3aed;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Consulta / Precio (M8)</span><span class="fi-val">47</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:25.7%;background:#16a34a;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Lead / Contacto (M9)</span><span class="fi-val">23</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:12.6%;background:#f59e0b;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Conversión</span><span class="fi-val">12</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:6.6%;background:#ea580c;"></div></div>
+              </div>
+            </div>
+
+            <div class="rc-card">
+              <div class="rc-title">M3 &middot; Preferencia de interacción</div>
+              <div class="rc-sub">Distribución por opción de menú elegida</div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Catálogo</span><span class="mi-pct">45%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:45%;background:#2563eb;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>FAQ</span><span class="mi-pct">30%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:30%;background:#7c3aed;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Presupuesto</span><span class="mi-pct">15%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:15%;background:#16a34a;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Atención humana</span><span class="mi-pct">10%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:10%;background:#ea580c;"></div></div>
+              </div>
+              <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+                <div class="rc-title">M11 &middot; Fuga de alta intención</div>
+                <div class="rc-sub" style="margin-bottom:8px;">Consultaron precio pero no dejaron datos</div>
+                <div class="funnel-item">
+                  <div class="fi-header"><span class="fi-label">Fuga</span><span class="fi-val" style="color:#ef4444;">35%</span></div>
+                  <div class="bar-bg"><div class="bar-fill" style="width:35%;background:#ef4444;"></div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="other-metrics">
+            <div class="om-card">
+              <div class="om-icon">&#128241;</div>
+              <div class="om-info">
+                <div class="om-label">M2 &middot; Abandono en llegada</div>
+                <div class="om-val">22 <span class="om-tag">12%</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#128230;</div>
+              <div class="om-info">
+                <div class="om-label">M4 &middot; Interacción en catálogo</div>
+                <div class="om-val">87 <span class="om-tag">catalog_viewed</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#8505;&#65039;</div>
+              <div class="om-info">
+                <div class="om-label">M5 &middot; Solicitudes de información</div>
+                <div class="om-val">65 <span class="om-tag">info_requested</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#10067;</div>
+              <div class="om-info">
+                <div class="om-label">M6 &middot; FAQs resueltas por el bot</div>
+                <div class="om-val">52 <span class="om-tag">faq_viewed</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#128100;</div>
+              <div class="om-info">
+                <div class="om-label">M9 &middot; Derivaciones a atención humana</div>
+                <div class="om-val">23 <span class="om-tag">human_derivation</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-note">
+            <div class="vp-note">&#128202; <strong>Datos simulados &middot; Plan de Tracking Equipo 16.</strong> Los eventos técnicos requeridos (session_started, catalog_viewed, fallback_triggered, etc.) están definidos en la planilla de tracking del equipo de Data Analytics. La integración con endpoints reales se realizará en próximos sprints.</div>
+          </div>
+
+        </div><!-- /view-resumen -->
+
+        <!-- ── VISTA: MI PERFIL ── -->
+        <div id="view-perfil" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="ep-row"><span class="ep-tag ep-pend">sin endpoint · GET /api/users/profile</span><span class="ep-tag ep-pend">sin endpoint · GET /api/sessions</span></div>
+            <div id="perfil-card" class="dash-profile-card" style="margin:0;"></div>
+            <div class="vp-body">
+              <div class="vp-field">
+                <span class="vp-field-label">Rol</span>
+                <span class="vp-field-value ok">Emprendedor</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Estado de sesión</span>
+                <span class="vp-field-value ok">Activa</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Autenticación</span>
+                <span class="vp-field-value ok">JWT Demo</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Token (parcial)</span>
+                <span class="vp-field-value mono" id="perfil-token"></span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Entidades relacionadas</span>
+                <span class="vp-field-value muted">USUARIO &middot; SESION_USUARIO</span>
+              </div>
+            </div>
+            <div class="vp-note">La edición de perfil y la gestión de sesiones se habilitarán en próximos sprints. Entidades: <strong>USUARIO</strong> y <strong>SESION_USUARIO</strong> del DER.</div>
           </div>
         </div>
 
@@ -1005,6 +1389,64 @@
     inp.focus();
   }
 
+  // ── Navegación interna del dashboard (SPA) ───────────────────────────────
+
+  const VISTA_INFO = {
+    'inicio':     { titulo: 'Panel del Emprendedor',  sub: 'Gestiona tu chatbot y tu negocio desde un solo lugar.' },
+    'config-bot': { titulo: 'Configuración del Bot',  sub: 'Personaliza cómo se comunica tu chatbot con tus clientes.' },
+    'productos':  { titulo: 'Productos',              sub: 'Administra el catálogo de productos de tu negocio.' },
+    'faqs':       { titulo: 'Preguntas Frecuentes',   sub: 'Creá y gestioná las respuestas automáticas del bot.' },
+    'consultas':  { titulo: 'Consultas',              sub: 'Revisá las conversaciones recibidas de tus clientes.' },
+    'leads':      { titulo: 'Leads',                  sub: 'Clientes potenciales capturados por el chatbot.' },
+    'resumen':    { titulo: 'Resumen de Métricas',    sub: 'Datos simulados · Plan de Tracking Equipo 16.' },
+    'perfil':     { titulo: 'Mi Perfil',              sub: 'Información de tu cuenta y sesión activa.' },
+  };
+
+  function navegarA(vista) {
+    document.querySelectorAll('.dash-view').forEach(v => v.classList.add('hidden'));
+    const target = document.getElementById('view-' + vista);
+    if (target) target.classList.remove('hidden');
+    document.querySelectorAll('#dash-nav [data-vista]').forEach(a => a.classList.remove('active'));
+    const navItem = document.querySelector(`#dash-nav [data-vista="${vista}"]`);
+    if (navItem) navItem.classList.add('active');
+    const info = VISTA_INFO[vista];
+    if (info) {
+      document.getElementById('dash-page-title').textContent = info.titulo;
+      document.getElementById('dash-page-sub').textContent = info.sub;
+    }
+    if (vista === 'perfil') rellenarPerfil();
+    document.querySelector('.dash-main').scrollTop = 0;
+  }
+
+  function rellenarPerfil() {
+    if (!usuarioIdActual) return;
+    const emp = EMPRENDEDORES[usuarioIdActual];
+    const ahora = new Date().toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const iniciales = emp.nombre.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const tokenCorto = tokenActual ? tokenActual.substring(0, 22) + '...' : '';
+    document.getElementById('perfil-card').innerHTML = `
+      <div class="dpc-avatar">&#127978;</div>
+      <div class="dpc-info">
+        <div class="dpc-name">${esc(emp.nombre)}</div>
+        <span class="dpc-role">Emprendedor</span>
+        <div class="dpc-rows">
+          <div class="dpc-row">&#9993; <strong>${esc(emp.email)}</strong></div>
+          <div class="dpc-row">&#128100; Usuario ID: <strong>${usuarioIdActual}</strong></div>
+          <div class="dpc-row">&#128197; Sesión iniciada: <strong>${ahora}</strong></div>
+        </div>
+      </div>
+      <div class="dpc-status-col">
+        <div class="dpc-status-title">Estado de la cuenta</div>
+        <div class="dpc-status">
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Sesión activa con JWT</span></div>
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Acceso: Emprendedor</span></div>
+        </div>
+      </div>
+    `;
+    const tokenEl = document.getElementById('perfil-token');
+    if (tokenEl) tokenEl.textContent = tokenActual ? tokenActual.substring(0, 30) + '...' : '—';
+  }
+
   // ── Panel Emprendedor ─────────────────────────────────────────────────────
 
   function mostrarPanelEmprendedor(emp) {
@@ -1043,6 +1485,7 @@
     document.getElementById('app-layout').classList.add('hidden');
     document.getElementById('mode-banner').classList.add('hidden');
     document.getElementById('panel-emprendedor').classList.remove('hidden');
+    navegarA('inicio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
