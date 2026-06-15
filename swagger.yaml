@@ -1,14 +1,13 @@
 openapi: 3.0.0
 info:
-  title: API de Autenticación - InnovaLab Chatbot
+  title: API de Autenticación y Base de Conocimientos - InnovaLab Chatbot
   description: >
     Especificación de los endpoints de registro y login. 
     Arquitectura con inicialización de Bot integrada y registro de última sesión, histórico
     de movimientos y autenticación de alta seguridad.
-    ABM de FAQs con categorías
+    ABM de FAQs con categorías.
   version: 1.0.0
 
-# Definimos el esquema de seguridad (El candado para el JWT)
 components:
   securitySchemes:
     bearerAuth:
@@ -160,6 +159,7 @@ paths:
                       - example: "La cuenta se encuentra inactiva o dada de baja"
         '500':
           description: Error interno del servidor.
+
   # ==========================================
   # MÓDULO: USUARIO (Requieren Token)
   # ==========================================
@@ -172,7 +172,7 @@ paths:
       tags:
         - Usuario
       security:
-        - bearerAuth: [] # Exige el token JWT
+        - bearerAuth: [] 
       requestBody:
         required: true
         content:
@@ -233,7 +233,7 @@ paths:
       tags:
         - Usuario
       security:
-        - bearerAuth: [{ bearerAuth: [] }] # Exige el token JWT
+        - bearerAuth: [] 
       responses:
         '200':
           description: Cuenta dada de baja con éxito.
@@ -252,6 +252,7 @@ paths:
           description: Acceso denegado. Token faltante, expirado o inválido.
         '500':
           description: Error interno al procesar la baja.
+
   # ==========================================
   # MÓDULO: CATEGORÍAS FAQ
   # ==========================================
@@ -264,7 +265,6 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        responses:
         '200':
           description: Devuelve un array con todas las categorías del bot.
           content:
@@ -504,12 +504,11 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - categoria_id
+                - pregunta
+                - respuesta
               properties:
-                categoria_id: { type: string }
-                pregunta: { type: string }
-                respuesta: { type: string }
-                keywords: { type: string }
-      properties:
                 categoria_id:
                   type: string
                   format: uuid
