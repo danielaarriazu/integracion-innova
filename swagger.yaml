@@ -3,10 +3,22 @@ info:
   title: API de Autenticación - InnovaLab Chatbot
   description: >
     Especificación de los endpoints de registro y login. 
-    Arquitectura con inicialización de Bot integrada y registro de última sesión.
+    Arquitectura con inicialización de Bot integrada y registro de última sesión, histórico, 
+    de movimientos y autenticación de alta seguridad.
   version: 1.0.0
 
+# Definimos el esquema de seguridad (El candado para el JWT)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
 paths:
+  # ==========================================
+  # MÓDULO: AUTENTICACIÓN
+  # ==========================================
   /api/auth/register:
     post:
       summary: Registro de un nuevo Emprendedor
@@ -84,7 +96,7 @@ paths:
   /api/auth/login:
     post:
       summary: Inicio de sesión de Emprendedor
-      description: Validar credenciales, guarda última sesión y genera JWT por 24 horas.
+      description: Validar credenciales, genera el log en HistorialSesion, guarda última sesión y genera JWT por 24 horas.
       tags:
         - Autenticación
       requestBody:
@@ -135,3 +147,61 @@ paths:
           description: Credenciales inválidas.
         '500':
           description: Error interno.
+  # ==========================================
+  # MÓDULO: USUARIO (Requieren Token)
+  # ==========================================
+  /api/user/change-password:
+    post:
+      summary: Cambiar contraseña
+      description: >
+        Permite al emprendedor cambiar su contraseña actual por una nueva. 
+        Aplica validaciones estrictas (Regex) y registra el movimiento en la tabla RegistroActividad.
+      tags:
+        - Usuario
+      security:
+        - bearerAuth: [] # Exige el token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - passwordActual
+                - nuevaPassword
+              properties:
+                passwordActual:
+                  type: string
+                  example: "PasswordSegura2026!"
+                nuevaPassword:
+                  type: string
+                  example: "InnovaLabNueva26@#"
+      responses:
+        '200':
+          description: Contraseña actualizada con éxito.
+        '400':
+          description: Contraseña actual incorrecta o nueva contraseña no cumple con los requisitos mínimos.
+        '401':
+          description: Acceso denegado. Token faltante, expirado o inválido.
+        '404':
+          description: Usuario no encontrado o inactivo.
+        '500':
+          description: Error interno del servidor.
+
+  /api/user/delete-account:
+    delete:
+      summary: Dar de baja la cuenta (Soft Delete)
+      description: >
+        Ejecuta un falso eliminar. Cambia el estado del usuario a ELIMINADO para restringir su acceso, 
+        pero conserva su historial y métricas. Registra la acción en RegistroActividad.
+      tags:
+        - Usuario
+      security:
+        - bearerAuth: [] # Exige el token JWT
+      responses:
+        '200':
+          description: Cuenta deshabilitada correctamente.
+        '401':
+          description: Acceso denegado. Token faltante, expirado o inválido.
+        '500':
+          description: Error interno al procesar la baja.

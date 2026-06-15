@@ -23,6 +23,7 @@ model Usuario {
   ultimaSesion DateTime?         
   bot          ConfiguracionBot? // Relación 1 a 1 con la configuración del bot
   historialSesiones HistorialSesion[] 
+  actividades      RegistroActividad[]
 }
 
 model ConfiguracionBot {
@@ -54,4 +55,15 @@ enum EstadoUsuario {
   ACTIVO
   SUSPENDIDO
   ELIMINADO
+}
+
+model RegistroActividad {
+  id          String   @id @default(uuid())
+  usuario_id  String
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  accion      String   // Ej: "CAMBIO_PASSWORD", "EDICION_BOT", "LECTURA_REPORTE"
+  detalle     String   @db.Text // Ej: "El usuario modificó el mensaje de bienvenida"
+  ip          String?
+  dispositivo String?
+  fecha       DateTime @default(now())
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, EstadoUsuario } from '@prisma/client';
+import { registrarActividad } from '../services/activity.service';
 
 
 const prisma = new PrismaClient();
@@ -53,6 +54,14 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
       data: { password: hashedPassword }
     });
 
+    // Registramos la actividad de cambio de contraseña
+    await registrarActividad(
+      usuarioId, 
+      'CAMBIO_CONTRASEÑA', 
+      'El usuario cambió su contraseña exitosamente.', 
+      req
+    );
+
     res.json({ message: 'Contraseña actualizada con éxito' });
   } catch (error) {
     res.status(500).json({ message: 'Error en el servidor al cambiar la contraseña' });
@@ -74,6 +83,14 @@ export const DeleteUser = async (req: Request, res: Response): Promise<void> => 
       where: { id: usuarioId },
       data: { estado: EstadoUsuario.ELIMINADO }
     });
+
+    // Registramos la actividad de eliminación de cuenta
+    await registrarActividad(
+      usuarioId,
+      'ELIMINACION_CUENTA',
+      'El usuario eliminó su cuenta exitosamente.',
+      req
+    );
 
     res.json({ message: 'La cuenta se ha dado de baja exitosamente.' });
   } catch (error) {

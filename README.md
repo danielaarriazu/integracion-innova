@@ -15,13 +15,15 @@ Este es el repositorio del backend para el MVP de la plataforma de chatbot y ges
 ##  Estructura del Proyecto
 
 ```text
-├──  prisma/          # Esquemas de base de datos y modelos de Prisma
-├──  src/
-│   ├──  controllers/ # Lógica de negocio (Autenticación, etc.)
-│   ├──  routes/      # Definición de endpoints y rutas de la API
-│   └──  index.ts     # Punto de entrada del servidor Express
-├──  .env             # Variables de entorno (Ignorado en Git)
-└──  package.json     # Dependencias y scripts del proyecto
+├── prisma/           # Esquemas de base de datos y modelos de Prisma
+├── src/
+│   ├── controllers/  # Lógica de negocio (Autenticación, Usuario, etc.)
+│   ├── middlewares/  # Interceptores de seguridad (Autenticación JWT)
+│   ├── routes/       # Definición de endpoints y enrutamiento modular
+│   ├── services/     # Lógica de soporte (Historial de sesiones, Auditoría)
+│   └── index.ts      # Punto de entrada del servidor Express
+├── .env              # Variables de entorno (Ignorado en Git)
+└── package.json      # Dependencias y scripts del proyecto
 
 ## Configuracion del entorno
 
@@ -43,6 +45,11 @@ npm run dev
 
 Endpoints Disponibles (Funcionales :D)
 Autenticación (/api/auth)
-POST /register: Registra una nueva cuenta de PyME/Emprendedor.
+POST /register: Registra una nueva cuenta de PyME/Emprendedor y aprovisiona su bot base mediante una transacción automatica
 
-POST /login: Autentica al usuario y retorna el Token JWT de sesión.
+POST /login: Autentica al usuario, registra el ingreso en el historial de movimientos y retorna el Token JWT de sesión.
+
+Gestión de Usuario (/api/user) — Requieren Token JWT
+POST /change-password: Valida reglas estrictas de seguridad y actualiza la contraseña, registrando la acción en el historial de movimientos.
+
+DELETE /delete-account: Ejecuta un "Soft Delete" (Baja lógica) para deshabilitar la cuenta conservando la integridad de las métricas, registrando la acción en el historial de movimientos.

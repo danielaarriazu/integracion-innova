@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db';
+import { registrarActividad } from '../services/activity.service';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_ultra_secreta';
 
@@ -92,6 +93,14 @@ export const login = async (req: Request, res: Response) => {
       data: { ultimaSesion: new Date() }
     });
 
+    // Registramos la actividad de login exitoso
+    await registrarActividad(
+      usuario.id,
+      'LOGIN_EXITOSO',
+      'El usuario inició sesión exitosamente.',
+      req
+    );
+    
     // Seteamos estrictamente la duración del token a 24 horas
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, rol: usuario.rol },
