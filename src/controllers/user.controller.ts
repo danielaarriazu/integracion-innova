@@ -2,12 +2,9 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, EstadoUsuario } from '@prisma/client';
 import { registrarActividad } from '../services/activity.service';
-
+import { passwordSchema } from '../utils/password.validator';
 
 const prisma = new PrismaClient();
-
-// Expresión regular estricta para contraseñas (8 caracteres, Mayús, Minús, Número y Caracter Especial)
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$/;
 
 //  CAMBIAR CONTRASEÑA
 export const changePassword = async (req: Request, res: Response): Promise<void> => {
@@ -16,6 +13,8 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
     
     // El id del usuario vendrá inyectado por el middleware de token en req.usuario
     const usuarioId = (req as any).usuario?.id; 
+
+    console.log("ID del token recibido:", usuarioId); // Debugging: Verificar que el ID del token se reciba correctamente
 
     if (!usuarioId) {
       res.status(401).json({ message: 'No autorizado. Falta el contexto de usuario.' });
@@ -29,7 +28,7 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Verificar si la contraseña actual que ingresó es correcta
+    // Validamos contraseña segura: usando  una funcion de validación externa (password-validator) con reglas especificas en utils/password.validator.ts
     const passwordValida = await bcrypt.compare(passwordActual, usuario.password);
     if (!passwordValida) {
       res.status(400).json({ message: 'La contraseña actual es incorrecta' });
@@ -37,7 +36,7 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
     }
 
     // Validar el nivel de seguridad de la nueva contraseña
-    if (!PASSWORD_REGEX.test(nuevaPassword)) {
+    if (!passwordSchema.validate(nuevaPassword)) {
       res.status(400).json({ 
         message: 'La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.' 
       });

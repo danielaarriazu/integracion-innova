@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db';
 import { registrarActividad } from '../services/activity.service';
+import { passwordSchema } from '../utils/password.validator';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_ultra_secreta';
 
@@ -22,9 +23,8 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'El formato del correo electrónico no es válido' });
     }
 
-    // Validamos contraseña segura: La regex valida mínimo 8 caracteres, al menos una letra, un número y un carácter especial (@$!%*?&...)
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&.\-_#])[A-Za-z\d@$!%*?&.\-_#]{8,}$/;
-    if (!password || !passwordRegex.test(password)) {
+    // Validamos contraseña segura: usando  una funcion de validación externa (password-validator) con reglas especificas en utils/password.validator.ts
+    if (!password || !passwordSchema.validate(password)) {
       return res.status(400).json({ 
         error: 'La contraseña debe tener al menos 8 caracteres, e incluir letras, números y al menos un carácter especial (ej: @, $, !, %, *, ?, &, ., -, _, #)' 
       });
