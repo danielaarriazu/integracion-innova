@@ -29,7 +29,7 @@ export const createFAQ = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const nuevaFAQ = await prisma.fAQ.create({
+    const nuevaFAQ = await prisma.faq.create({
       data: {
         bot_id: bot.id,
         categoria_id,
@@ -63,7 +63,7 @@ export const getFAQs = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const faqs = await prisma.fAQ.findMany({
+    const faqs = await prisma.faq.findMany({
       where: { bot_id: bot.id },
       include: {
         categoria: {
@@ -89,7 +89,7 @@ export const updateFAQ = async (req: Request, res: Response): Promise<void> => {
     const bot = await prisma.configuracionBot.findUnique({ where: { usuario_id: usuarioId } });
     if (!bot) return;
 
-    const faqExistente = await prisma.fAQ.findFirst({ 
+    const faqExistente = await prisma.faq.findFirst({ 
       where: { id: id, bot_id: bot.id }
     });
 
@@ -108,7 +108,7 @@ export const updateFAQ = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    const faqActualizada = await prisma.fAQ.update({
+    const faqActualizada = await prisma.faq.update({
       where: { id },
       data: {
         categoria_id: categoria_id || faqExistente.categoria_id,
@@ -140,7 +140,7 @@ export const deleteFAQ = async (req: Request, res: Response): Promise<void> => {
     const bot = await prisma.configuracionBot.findUnique({ where: { usuario_id: usuarioId } });
     if (!bot) return;
 
-    const faqExistente = await prisma.fAQ.findFirst({
+    const faqExistente = await prisma.faq.findFirst({
       where: { id: id, bot_id: bot.id }
     });
 
@@ -149,7 +149,7 @@ export const deleteFAQ = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    await prisma.fAQ.delete({ where: { id } });
+    await prisma.faq.delete({ where: { id } });
 
     await registrarActividad(
       usuarioId,

@@ -126,7 +126,7 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const faqsAsociadas = await prisma.fAQ.findMany({
+    const faqsAsociadas = await prisma.faq.findMany({
       where: { categoria_id: id }
     }); 
 
