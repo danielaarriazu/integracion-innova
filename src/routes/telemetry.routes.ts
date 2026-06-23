@@ -2,6 +2,8 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { trackEvents } from '../controllers/telemetry.controller';
 import { verificarTokenOpcional } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validator.middleware';
+import { trackEventsSchema } from '../schema/telemetry.schema';
 
 const router = Router();
 
@@ -14,6 +16,6 @@ const telemetryLimiter = rateLimit({
   legacyHeaders: false
 });
 
-router.post('/', telemetryLimiter, verificarTokenOpcional, trackEvents);
+router.post('/', telemetryLimiter, verificarTokenOpcional, validate(trackEventsSchema), trackEvents);
 
 export default router;

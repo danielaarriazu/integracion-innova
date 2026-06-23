@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { createProduct, getProducts, updateProduct, deleteProduct } from '../controllers/product.controller';
 import { verificarToken } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validator.middleware';
+import { createProductSchema, updateProductSchema, getProductsSchema, deleteProductSchema} from '../schema/product.schema';
 
 const router = Router();
 
-router.post('/', verificarToken, createProduct);
-router.get('/', verificarToken, getProducts);
-router.put('/:id', verificarToken, updateProduct);
-router.delete('/:id', verificarToken, deleteProduct);
+router.post('/', verificarToken, validate(createProductSchema), createProduct);
+router.get('/', verificarToken, validate(getProductsSchema), getProducts);
+router.put('/:id', verificarToken, validate(updateProductSchema), updateProduct);
+router.delete('/:id', verificarToken, validate(deleteProductSchema), deleteProduct);
 
 export default router;

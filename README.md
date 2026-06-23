@@ -13,7 +13,7 @@ Este es el repositorio del backend para el MVP de la plataforma de chatbot y ges
 - **Mensajería / Cola (Message Broker):** Upstash Redis (REST API)
 - **Base de Datos Analítica (OLAP):** MotherDuck (DuckDB Node API v1.5.2-r.1)
 - **Herramientas de desarrollo:** TSX (TypeScript Execute)
-- **Validación:** password-validator
+- **Validación:** Zod v4
 - **Documentación:** Swagger / OpenAPI
 - **Despliegue:** Render (CI/CD)
 
@@ -28,7 +28,7 @@ Este es el repositorio del backend para el MVP de la plataforma de chatbot y ges
 │   ├── routes/       # Definición de endpoints y enrutamiento modular
 │   ├── services/     # Capa de Negocio: Reglas puras, transacciones ACID y auditoría
 │   ├── types/        # Interfaces y tipos estrictos para TypeScript
-│   ├── utils/        # Lógica de soporte 
+│   ├── schema/       # libreria Zod para validaciones de entrada
 │   ├── app.ts        # Configuración de Express, CORS y Swagger
 │   ├── server.ts     # Punto de entrada de la API (API Server)
 │   └── worker.ts     # Proceso en segundo plano para consumo de telemetría (Data Pipeline)

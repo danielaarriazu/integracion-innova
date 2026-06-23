@@ -14,7 +14,7 @@ import { errorHandler } from './middlewares/error.middleware';
 
 const app = express();
 
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
