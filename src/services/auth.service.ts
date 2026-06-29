@@ -26,14 +26,15 @@ export const registrarUsuario = async (data: RegisterInput): Promise<{ id: strin
       nombre: data.nombre,
       email: data.email,
       password: hashedPassword,
-      rubro: data.rubro,
       rol: 'EMPRENDEDOR',
       estado: 'ACTIVO',
       bot: {
         create: {
           nombreNegocio: data.nombreNegocio || data.nombre,
+          rubro: data.rubro,
           activo: true,
           mensajeBienvenida: `¡Hola! Bienvenido/a a ${data.nombreNegocio || data.nombre}. ¿En qué te puedo ayudar hoy?`,
+          respuestaDerivacion: ' Aguarda un momento, te estoy comunicando con un asesor humano para que te atienda personalmente.'
         }
       }
     },

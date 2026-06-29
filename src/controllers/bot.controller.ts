@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as botService from '../services/bot.service';
+import prisma from '../lib/prisma';
 
 
 export const getBotConfig = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -38,5 +39,25 @@ export const updateBotConfig = async (req: Request, res: Response, next: NextFun
       return;
     }
     next(error);
+  }
+};
+
+export const actualizarConfig = async (req: Request, res: Response) => {
+  try {
+    const usuarioId = req.usuario?.id;
+    const datosActualizados = req.body; 
+    
+    if (req.file) {
+      datosActualizados.logoUrl = req.file.path; 
+    }
+
+    const configActualizada = await prisma.configuracionBot.update({
+      where: { usuarioId },
+      data: datosActualizados
+    });
+
+    res.json({ success: true, data: configActualizada });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar la configuración' });
   }
 };

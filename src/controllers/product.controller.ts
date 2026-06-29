@@ -8,6 +8,10 @@ const getRequestMeta = (req: Request) => ({
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.file) {
+      req.body.urlImagen = req.file.path;
+    }
+
     const producto = await productService.crearProducto({
       usuarioId: req.usuario!.id,
       ...req.body,
@@ -39,6 +43,10 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.file) {
+      req.body.urlImagen = req.file.path;
+    }
+    
     const producto = await productService.actualizarProducto({
       usuarioId: req.usuario!.id,
       productoId: req.params.id,
