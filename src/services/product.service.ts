@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma';
 import { registrarActividad } from './activity.service';
-import { CreateProductInput, UpdateProductInput, DeleteProductInput } from '../types/product.types';
+import { CreateProductInput, UpdateProductInput, DeleteProductInput, GetProductsInput } from '../types/product.types';
 
 // Función auxiliar para validar la existencia del bot
 const obtenerBotDeUsuario = async (usuarioId: string) => {
@@ -11,7 +11,7 @@ const obtenerBotDeUsuario = async (usuarioId: string) => {
 
 export const crearProducto = async (data: CreateProductInput) => {
   const bot = await obtenerBotDeUsuario(data.usuarioId);
-
+ 
   const nuevoProducto = await prisma.producto.create({
     data: {
       botId: bot.id,
@@ -23,7 +23,7 @@ export const crearProducto = async (data: CreateProductInput) => {
       activo: data.activo ?? true
     }
   });
-
+ 
   await registrarActividad(
     data.usuarioId,
     'CREACION_PRODUCTO',
@@ -31,28 +31,53 @@ export const crearProducto = async (data: CreateProductInput) => {
     data.ip,
     data.dispositivo
   );
-
+ 
   return nuevoProducto;
 };
 
-export const obtenerProductos = async (usuarioId: string) => {
+export const obtenerProductos = async (usuarioId: string, filtros: GetProductsInput) => {
   const bot = await obtenerBotDeUsuario(usuarioId);
-
-  return await prisma.producto.findMany({
-    where: { botId: bot.id },
-    orderBy: { fechaCreacion: 'desc' }
-  });
+ 
+  const { buscar, activo, page, limit } = filtros;
+ 
+  const where = {
+    botId: bot.id,
+    ...(activo !== undefined ? { activo: activo === 'true' } : {}),
+    ...(buscar && buscar.trim().length > 0
+      ? { nombre: { contains: buscar.trim(), mode: 'insensitive' as const } }
+      : {}),
+  };
+ 
+  const skip = (page - 1) * limit;
+ 
+  const [productos, total] = await prisma.$transaction([
+    prisma.producto.findMany({
+      where,
+      orderBy: { fechaCreacion: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.producto.count({ where }),
+  ]);
+ 
+  return {
+    productos,
+    total,
+    page,
+    limit,
+    totalPaginas: Math.ceil(total / limit),
+  };
 };
 
 export const actualizarProducto = async (data: UpdateProductInput) => {
   const bot = await obtenerBotDeUsuario(data.usuarioId);
-
+ 
   const productoExistente = await prisma.producto.findFirst({
     where: { id: data.productoId, botId: bot.id }
   });
-
+ 
   if (!productoExistente) throw new Error('PRODUCT_NOT_FOUND');
-
+ 
   const productoActualizado = await prisma.producto.update({
     where: { id: data.productoId },
     data: {
@@ -65,28 +90,28 @@ export const actualizarProducto = async (data: UpdateProductInput) => {
     }
   });
 
-  await registrarActividad(
+   await registrarActividad(
     data.usuarioId,
     'EDICION_PRODUCTO',
     `El usuario actualizó el producto: "${productoActualizado.nombre}".`,
     data.ip,
     data.dispositivo
   );
-
+ 
   return productoActualizado;
 };
-
+ 
 export const eliminarProducto = async (data: DeleteProductInput) => {
   const bot = await obtenerBotDeUsuario(data.usuarioId);
-
+ 
   const productoExistente = await prisma.producto.findFirst({
     where: { id: data.productoId, botId: bot.id }
   });
-
+ 
   if (!productoExistente) throw new Error('PRODUCT_NOT_FOUND');
-
+ 
   await prisma.producto.delete({ where: { id: data.productoId } });
-
+ 
   await registrarActividad(
     data.usuarioId,
     'ELIMINACION_PRODUCTO',

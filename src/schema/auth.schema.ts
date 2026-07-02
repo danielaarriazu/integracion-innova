@@ -19,12 +19,6 @@ export const registerSchema = z.object({
 
   nombreNegocio: z.string().trim().max(150).optional(),
 
-  rubro: z
-    .string({ error: 'El rubro debe ser un texto' })
-    .trim()
-    .min(1, { error: 'El rubro no puede estar vacío' })
-    .max(100, { error: 'El rubro no puede superar los 100 caracteres' })
-    .optional(),
 });
 
 export const loginSchema = z.object({

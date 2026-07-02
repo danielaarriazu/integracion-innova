@@ -2,7 +2,7 @@ export interface UpdateBotInput {
   usuarioId: string;
   activo?: boolean;
   nombreNegocio?: string;
-  rubro?: string;
+  rubroId?: string;
   descripcionBreve?: string;
   horarioAtencion?: string;
   telefono?: string;

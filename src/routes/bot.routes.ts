@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getBotConfig, updateBotConfig } from '../controllers/bot.controller';
-import { actualizarConfig } from '../controllers/bot.controller';
+import { getBotConfig, updateBotConfig, actualizarConfig, obtenerRubros } from '../controllers/bot.controller';
 import { verificarToken } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validator.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
@@ -15,5 +14,7 @@ router.put('/', verificarToken, authorize('EMPRENDEDOR'), validate(updateBotSche
 
 // "imagenLogo" es el nombre exacto del campo que el Frontend debe mandar
 router.patch('/config', verificarToken, uploadLogo.single('imagenLogo'), actualizarConfig);
+
+router.get('/rubros', obtenerRubros);
 
 export default router;

@@ -44,21 +44,37 @@ export const updateBotConfig = async (req: Request, res: Response, next: NextFun
 
 export const actualizarConfig = async (req: Request, res: Response) => {
   try {
-    const usuarioId = req.usuario?.id;
-    const datosActualizados = req.body; 
-    
+    const ip = req.ip ?? req.socket.remoteAddress;
+    const dispositivo = req.headers['user-agent'];
+ 
     if (req.file) {
-      datosActualizados.logoUrl = req.file.path; 
+      req.body.logoUrl = req.file.path;
     }
 
-    const configActualizada = await prisma.configuracionBot.update({
-      where: { usuarioId },
-      data: datosActualizados
+    const configActualizada = await botService.actualizarConfiguracionBot({
+      usuarioId: req.usuario!.id,
+      ...req.body,
+      ip,
+      dispositivo
     });
 
     res.json({ success: true, data: configActualizada });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al actualizar la configuración' });
+  }
+};
+
+export const obtenerRubros = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const rubros = await prisma.rubro.findMany({
+      where: { activo: true },
+      select: { id: true, nombre: true },
+      orderBy: { nombre: 'asc' } 
+    });
+
+    res.status(200).json({ success: true, rubros });
+  } catch (error) {
+    next(error);
   }
 };

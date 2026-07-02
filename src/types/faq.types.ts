@@ -25,3 +25,11 @@ export interface DeleteFaqInput {
   ip?: string;
   dispositivo?: string;
 }
+
+export interface GetFaqsInput {
+  categoriaId?: string;
+  activa?: 'true' | 'false';
+  buscar?: string;
+  page: number;
+  limit: number;
+}

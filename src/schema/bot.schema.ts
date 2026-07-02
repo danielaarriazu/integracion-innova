@@ -10,11 +10,10 @@ export const updateBotSchema = z.object({
     .max(150, { error: 'El nombre del negocio no puede superar los 150 caracteres' })
     .optional(),
 
-  rubro: z
-    .string()
-    .trim()
-    .max(100, { error: 'El rubro es demasiado largo' })
-    .optional(),
+  rubroId: z
+  .string()
+  .uuid('El ID del rubro no es válido' )
+  .optional(),
   
   descripcionBreve: z
     .string()

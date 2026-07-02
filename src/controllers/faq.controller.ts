@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as faqService from '../services/faq.service';
+import { GetFaqsInput } from '../types/faq.types';
 
 const getRequestMeta = (req: Request) => ({
   ip: req.ip ?? req.socket.remoteAddress,
@@ -32,7 +33,8 @@ export const createFAQ = async (req: Request, res: Response, next: NextFunction)
 
 export const getFAQs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const faqs = await faqService.obtenerFAQs(req.usuario!.id);
+    const filtros = req.query as unknown as GetFaqsInput;
+    const faqs = await faqService.obtenerFAQs(req.usuario!.id, filtros);
     res.status(200).json({ success: true, faqs });
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'BOT_NOT_FOUND') {
