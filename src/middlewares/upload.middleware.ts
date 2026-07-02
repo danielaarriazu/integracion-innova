@@ -13,7 +13,7 @@ const storageLogo = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     return {
-      folder: 'emprendebot_logos', // La carpeta que se creará en tu Cloudinary
+      folder: 'emprendebot_logos', // Carpeta en Cloudinary donde se guardarán los logos
       allowed_formats: ['jpg', 'png', 'jpeg', 'webp'], // Formatos permitidos
       public_id: `logo-${Date.now()}`, // Nombre único del archivo
     };
@@ -27,7 +27,7 @@ export const uploadLogo = multer({
 const storageProducto = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => ({
-    folder: 'emprendebot_productos', // Carpeta separada!
+    folder: 'emprendebot_productos', 
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
     public_id: `prod-${Date.now()}`,
   }),

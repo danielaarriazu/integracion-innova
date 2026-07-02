@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getBotConfig, updateBotConfig } from '../controllers/bot.controller';
+import { actualizarConfig } from '../controllers/bot.controller';
 import { verificarToken } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validator.middleware';
 import { authorize } from '../middlewares/authorize.middleware';

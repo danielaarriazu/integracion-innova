@@ -58,6 +58,7 @@ export const actualizarConfig = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: configActualizada });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error al actualizar la configuración' });
   }
 };
