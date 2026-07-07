@@ -26,7 +26,6 @@ export const registrarUsuario = async (data: RegisterInput): Promise<{ id: strin
       nombre: data.nombre,
       email: data.email,
       password: hashedPassword,
-      rubro: data.rubro,
       rol: 'EMPRENDEDOR',
       estado: 'ACTIVO',
       bot: {
@@ -34,6 +33,7 @@ export const registrarUsuario = async (data: RegisterInput): Promise<{ id: strin
           nombreNegocio: data.nombreNegocio || data.nombre,
           activo: true,
           mensajeBienvenida: `¡Hola! Bienvenido/a a ${data.nombreNegocio || data.nombre}. ¿En qué te puedo ayudar hoy?`,
+          respuestaDerivacion: ' Aguarda un momento, te estoy comunicando con un asesor humano para que te atienda personalmente.'
         }
       }
     },
@@ -137,7 +137,7 @@ export const iniciarSesion = async (data: LoginInput): Promise<AuthResult> => {
 
   const usuario = await prisma.usuario.findUnique({ 
     where: { email: data.email },
-    select: { id: true, nombre: true, email: true, rubro: true, rol: true, estado: true, password: true },
+    select: { id: true, nombre: true, email: true, rol: true, estado: true, password: true },
   });
 
   if (!usuario) throw new Error('INVALID_CREDENTIALS');

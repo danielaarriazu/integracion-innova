@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as productService from '../services/product.service';
+import { GetProductsInput } from '../types/product.types';
 
 const getRequestMeta = (req: Request) => ({
   ip: req.ip ?? req.socket.remoteAddress,
@@ -8,6 +9,10 @@ const getRequestMeta = (req: Request) => ({
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.file) {
+      req.body.urlImagen = req.file.path;
+    }
+
     const producto = await productService.crearProducto({
       usuarioId: req.usuario!.id,
       ...req.body,
@@ -26,7 +31,8 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const productos = await productService.obtenerProductos(req.usuario!.id);
+     const filtros = req.query as unknown as GetProductsInput;
+    const productos = await productService.obtenerProductos(req.usuario!.id, filtros);
     res.status(200).json({ success: true, productos });
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'BOT_NOT_FOUND') {
@@ -39,6 +45,10 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    if (req.file) {
+      req.body.urlImagen = req.file.path;
+    }
+    
     const producto = await productService.actualizarProducto({
       usuarioId: req.usuario!.id,
       productoId: req.params.id,

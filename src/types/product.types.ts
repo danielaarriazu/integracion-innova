@@ -29,3 +29,10 @@ export interface DeleteProductInput {
   ip?: string;
   dispositivo?: string;
 }
+
+export interface GetProductsInput {
+  buscar?: string;
+  activo?: 'true' | 'false';
+  page: number;
+  limit: number;
+}

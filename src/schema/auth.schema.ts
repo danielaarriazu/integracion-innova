@@ -18,6 +18,7 @@ export const registerSchema = z.object({
   password: passwordSchema,
 
   nombreNegocio: z.string().trim().max(150).optional(),
+
 });
 
 export const loginSchema = z.object({

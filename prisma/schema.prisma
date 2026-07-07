@@ -17,7 +17,6 @@ model Usuario {
   nombre           String
   email            String              @unique
   password         String
-  rubro            String?
   rol              Rol                 @default(EMPRENDEDOR)
   estado           EstadoUsuario       @default(ACTIVO)
   fechaRegistro    DateTime            @default(now())
@@ -45,11 +44,15 @@ model ConfiguracionBot {
   // Estado y Datos del Negocio
   activo                Boolean        @default(false)
   nombreNegocio         String?
+  descripcionBreve      String?        @db.Text
+  horarioAtencion       String?
+  telefono              String?
   logoUrl               String?
   
   // Comportamiento del Bot
   mensajeBienvenida     String?        @db.Text
   mensajeFueraHorario   String?        @db.Text
+  respuestaDerivacion   String?        @db.Text
   derivacionAutomatica  Boolean        @default(false)
   
   // historialSesiones
@@ -61,6 +64,16 @@ model ConfiguracionBot {
   faqs                  Faq[]
   productos             Producto[]
   sesiones              SesionChat[]
+  rubroId               String?
+  rubro                 Rubro?         @relation(fields: [rubroId], references: [id])
+}
+
+model Rubro {
+  id          String             @id @default(uuid())
+  nombre      String             @unique
+  activo      Boolean            @default(true)
+  
+  bots        ConfiguracionBot[]
 }
 
 model CategoriaFAQ {
