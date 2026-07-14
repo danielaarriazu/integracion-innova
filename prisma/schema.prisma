@@ -54,6 +54,7 @@ model ConfiguracionBot {
   mensajeFueraHorario   String?        @db.Text
   respuestaDerivacion   String?        @db.Text
   derivacionAutomatica  Boolean        @default(false)
+  slug                  String?        @unique
   
   // historialSesiones
   fechaCreacion         DateTime       @default(now())
