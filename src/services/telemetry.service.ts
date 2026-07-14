@@ -6,8 +6,10 @@ const redis = new Redis({
 });
 
 interface TelemetryData {
+  botId?: string;
+  tipoUsuario?: 'ANONIMO' | 'EMPRENDEDOR' | 'CLIENTE';
   sessionId: string;
-  usuarioId?: string;
+  usuarioId?: string; 
   ip?: string;
   dispositivo?: string;
   eventos: any[];
@@ -17,6 +19,7 @@ export const enviarEventosQueue = async (data: TelemetryData): Promise<void> => 
   try {
     const payload = {
       ...data,
+      tipoUsuario: data.tipoUsuario || 'ANONIMO',
       fechaServidor: new Date().toISOString(),
     };
 
