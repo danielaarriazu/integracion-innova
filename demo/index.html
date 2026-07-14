@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InnovaLabs — Demo Backend</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --radius: 12px;
+      --emp: #16a34a;
+      --emp-light: #f0fdf4;
+      --emp-border: #bbf7d0;
+      --cli: #2563eb;
+      --cli-light: #eff6ff;
+      --cli-border: #bfdbfe;
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .hidden { display: none !important; }
+
+    /* ── Header ── */
+    .app-header {
+      background: var(--panel); border-bottom: 1px solid var(--border);
+      padding: 12px 24px; display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      background: var(--cli); color: #fff; width: 34px; height: 34px;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .logo-text { font-size: 15px; font-weight: 700; }
+    .logo-sub  { font-size: 12px; color: var(--muted); }
+
+    /* ══════════════════════════════
+       PANTALLA 1 — Welcome
+    ══════════════════════════════ */
+    #screen-welcome { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .welcome-body {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 48px 16px 32px;
+    }
+    .welcome-title { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+    .welcome-sub   { font-size: 15px; color: var(--muted); text-align: center; margin-bottom: 40px; }
+
+    .role-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; max-width: 620px; width: 100%; margin-bottom: 20px;
+    }
+    @media (max-width: 540px) { .role-cards { grid-template-columns: 1fr; } }
+
+    .role-card {
+      background: var(--panel); border: 2px solid var(--border); border-radius: var(--radius);
+      padding: 28px 24px; display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 10px; transition: box-shadow .15s;
+    }
+    .role-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .role-card.emp { border-color: var(--emp-border); }
+    .role-card.cli { border-color: var(--cli-border); }
+    .role-icon  { font-size: 40px; }
+    .role-title { font-size: 18px; font-weight: 700; }
+    .role-card.emp .role-title { color: var(--emp); }
+    .role-card.cli .role-title { color: var(--cli); }
+    .role-desc  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .btn-role {
+      width: 100%; padding: 12px; border-radius: 8px; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer; color: #fff;
+      margin-top: 6px; transition: filter .15s;
+    }
+    .btn-role:hover { filter: brightness(.9); }
+    .btn-role.emp { background: var(--emp); }
+    .btn-role.cli { background: var(--cli); }
+
+    .demo-note { font-size: 12px; color: var(--muted); }
+
+    .welcome-footer {
+      background: var(--panel); border-top: 1px solid var(--border); padding: 20px 24px;
+    }
+    .footer-inner {
+      max-width: 800px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr auto auto; gap: 24px; align-items: center;
+    }
+    @media (max-width: 600px) { .footer-inner { grid-template-columns: 1fr; } }
+    .footer-tip { font-size: 13px; line-height: 1.6; }
+    .footer-tip strong { display: block; margin-bottom: 4px; }
+    .footer-badge { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; }
+    .fbadge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+    .footer-badge.emp .fbadge-dot { background: var(--emp); }
+    .footer-badge.cli .fbadge-dot { background: #94a3b8; }
+    .footer-badge .fb-label { font-weight: 700; }
+    .footer-badge .fb-sub   { color: var(--muted); }
+
+    /* ══════════════════════════════
+       PANTALLA 2 — App
+    ══════════════════════════════ */
+    #screen-app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .mode-banner {
+      padding: 10px 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .mode-banner.emp { background: var(--emp-light); border-bottom: 1px solid var(--emp-border); }
+    .mode-banner.cli { background: var(--cli-light); border-bottom: 1px solid var(--cli-border); }
+    .mode-icon  { font-size: 18px; }
+    .mode-info  { flex: 1; }
+    .mode-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .mode-banner.emp .mode-title { color: var(--emp); }
+    .mode-banner.cli .mode-title { color: var(--cli); }
+    .mode-sub   { font-size: 11px; color: var(--muted); }
+
+    .session-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    }
+    .session-badge.active   { background: #dcfce7; color: var(--emp); }
+    .session-badge.inactive { background: #f1f5f9; color: var(--muted); }
+    .sdot { width: 7px; height: 7px; border-radius: 50%; }
+    .session-badge.active .sdot { background: var(--emp); }
+
+    .btn-back {
+      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--panel); font-size: 12px; font-weight: 600;
+      cursor: pointer; color: var(--muted); margin-left: 8px; transition: background .15s;
+    }
+    .btn-back:hover { background: #f1f5f9; }
+
+    /* ── Layout ── */
+    .app-layout {
+      display: grid; grid-template-columns: 290px 1fr;
+      gap: 16px; max-width: 1080px; width: 100%;
+      margin: 20px auto; padding: 0 16px; align-items: start;
+    }
+    @media (max-width: 700px) { .app-layout { grid-template-columns: 1fr; } }
+
+    /* ── Selector panel ── */
+    .selector-panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .sp-header { padding: 16px; border-bottom: 1px solid var(--border); }
+    .sp-title  { font-size: 15px; font-weight: 700; }
+    .sp-sub    { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .negocio-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .negocio-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 10px; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .negocio-item:hover { border-color: #94a3b8; }
+    .negocio-item.selected-emp { border-color: var(--emp); background: var(--emp-light); }
+    .negocio-item.selected-cli { border-color: var(--cli); background: var(--cli-light); }
+
+    .radio-dot {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s;
+    }
+    .negocio-item.selected-emp .radio-dot { border-color: var(--emp); }
+    .negocio-item.selected-cli .radio-dot { border-color: var(--cli); }
+    .radio-fill { width: 8px; height: 8px; border-radius: 50%; display: none; }
+    .negocio-item.selected-emp .radio-fill { display: block; background: var(--emp); }
+    .negocio-item.selected-cli .radio-fill { display: block; background: var(--cli); }
+
+    .negocio-icon { font-size: 22px; flex-shrink: 0; }
+    .negocio-name { font-size: 13px; font-weight: 600; }
+    .negocio-desc { font-size: 11px; color: var(--muted); }
+
+    .btn-ingresar {
+      display: block; width: calc(100% - 24px); margin: 0 12px 12px;
+      padding: 12px; border-radius: 8px; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer; color: #fff;
+      transition: filter .15s, opacity .15s;
+    }
+    .btn-ingresar:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-ingresar:not(:disabled):hover { filter: brightness(.9); }
+    .btn-ingresar.emp { background: var(--emp); }
+    .btn-ingresar.cli { background: var(--cli); }
+
+    /* ── Chat panel ── */
+    .chat-panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .cp-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .cp-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .cp-header.emp .cp-title { color: var(--emp); }
+    .cp-header.cli .cp-title { color: var(--cli); }
+    .cp-meta  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .cp-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .cp-badge.jwt    { background: #dcfce7; color: var(--emp); }
+    .cp-badge.noauth { background: #f1f5f9; color: var(--muted); }
+
+    .chat-window {
+      height: 300px; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
+    }
+    .chat-window:empty::after {
+      content: 'Seleccioná un negocio e ingresá para comenzar...';
+      color: var(--muted); font-size: 13px; text-align: center; margin: auto;
+    }
+
+    .bubble-row { display: flex; }
+    .bubble-row.user    { justify-content: flex-end; }
+    .bubble-row.bot     { justify-content: flex-start; align-items: flex-end; gap: 6px; }
+    .bubble-row.sistema { justify-content: center; }
+
+    .bot-avatar {
+      width: 28px; height: 28px; background: #25d366; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .bubble {
+      max-width: 75%; padding: 10px 14px; border-radius: 16px;
+      font-size: 14px; line-height: 1.5;
+    }
+    .bubble-row.user    .bubble { background: var(--cli); color: #fff; border-bottom-right-radius: 4px; }
+    .bubble-row.bot     .bubble { background: #f1f5f9; color: var(--text); border-bottom-left-radius: 4px; }
+    .bubble-row.sistema .bubble { background: #fef3c7; color: #92400e; border-radius: 8px; font-size: 12px; max-width: 90%; }
+    .bubble.error-bub { background: #fef2f2 !important; color: #dc2626 !important; }
+
+    .bubble .meta { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 20px; font-weight: 600; font-size: 11px; }
+    .badge-db       { background: #dcfce7; color: var(--emp); }
+    .badge-fallback { background: #fef3c7; color: #d97706; }
+    .badge-intent   { background: #e0e7ff; color: #4338ca; }
+
+    .typing {
+      display: flex; align-items: center; gap: 4px;
+      padding: 10px 14px; background: #f1f5f9; border-radius: 16px;
+      border-bottom-left-radius: 4px; width: fit-content;
+    }
+    .dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: blink 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+    .quick-actions { padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 6px; border-top: 1px solid var(--border); min-height: 0; }
+    .quick-chip {
+      padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+      background: transparent; font-size: 12px; cursor: pointer; color: var(--muted);
+      transition: background .1s, color .1s, border-color .1s;
+    }
+    .quick-chip:hover { background: #f1f5f9; border-color: #94a3b8; color: var(--text); }
+
+    .chat-input-area {
+      padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px;
+    }
+    #msg-input {
+      flex: 1; padding: 10px 14px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 14px; font-family: inherit; outline: none;
+      transition: border-color .15s;
+    }
+    #msg-input:focus { border-color: var(--cli); }
+    #msg-input:disabled { background: #f8fafc; }
+    #msg-input::placeholder { color: var(--muted); }
+
+    .btn-send {
+      padding: 10px 20px; border-radius: 10px; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer; color: #fff;
+      transition: filter .15s, opacity .15s; white-space: nowrap;
+    }
+    .btn-send:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-send:not(:disabled):hover { filter: brightness(.9); }
+    .btn-send.emp { background: var(--emp); }
+    .btn-send.cli { background: var(--cli); }
+
+    .chat-footer-note {
+      padding: 8px 16px; font-size: 11px; color: var(--muted);
+      border-top: 1px solid var(--border); display: flex; align-items: center; gap: 5px;
+    }
+    .chat-footer-note.emp { color: var(--emp); }
+
+    /* ── Catalog ── */
+    .catalog-section {
+      display: none; margin-top: 12px; background: var(--panel);
+      border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+    }
+    .catalog-section.visible { display: block; }
+    .catalog-section-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .catalog-grid {
+      padding: 16px; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;
+    }
+    .product-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px;
+      cursor: pointer; transition: border-color .15s, box-shadow .15s;
+    }
+    .product-card:hover { border-color: var(--cli); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cli) 15%, transparent); }
+    .p-name  { font-weight: 700; margin-bottom: 3px; }
+    .p-desc  { color: var(--muted); font-size: 11px; margin-bottom: 6px; min-height: 26px; }
+    .p-price { font-size: 15px; font-weight: 800; color: var(--cli); }
+    .p-stock { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .product-detail { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .pd-img   { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 4px; }
+    .pd-nombre { font-size: 16px; font-weight: 800; }
+    .pd-desc   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .pd-precio { font-size: 22px; font-weight: 900; color: var(--cli); }
+    .pd-stock  { font-size: 12px; color: var(--muted); }
+    .pd-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .pd-btn { padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--cli); background: transparent; color: var(--cli); transition: background .15s, color .15s; }
+    .pd-btn:hover { background: var(--cli); color: #fff; }
+    .pd-btn.primary { background: var(--cli); color: #fff; }
+    .pd-btn.primary:hover { opacity: .85; }
+
+    /* ── Request log ── */
+    .request-log-wrap {
+      max-width: 1080px; width: 100%; margin: 0 auto 28px; padding: 0 16px;
+    }
+    .log-panel {
+      background: #0f172a; border-radius: var(--radius); overflow: hidden;
+      font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
+    }
+    .log-panel-header {
+      padding: 10px 16px; border-bottom: 1px solid #1e293b;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; font-weight: 700; color: #475569;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .log-panel-header span { color: #22d3ee; }
+    #log-entries { padding: 8px 0; min-height: 48px; }
+    #log-entries:empty::after {
+      content: 'Esperando llamadas al backend...';
+      display: block; color: #334155; font-size: 12px; padding: 6px 16px;
+    }
+    .log-entry {
+      padding: 3px 16px; font-size: 12px; line-height: 1.6;
+      display: flex; align-items: baseline; gap: 8px;
+      animation: logslide .15s ease;
+    }
+    @keyframes logslide { from { opacity:0; transform:translateX(-4px); } to { opacity:1; transform:none; } }
+    .log-time       { color: #475569; flex-shrink: 0; }
+    .log-m-post     { color: #60a5fa; font-weight: 700; flex-shrink: 0; min-width: 36px; }
+    .log-m-get      { color: #34d399; font-weight: 700; flex-shrink: 0; min-width: 36px; }
+    .log-m-sys      { color: #475569; flex-shrink: 0; min-width: 36px; }
+    .log-route      { color: #94a3b8; flex: 1; }
+    .log-arrow      { color: #334155; flex-shrink: 0; }
+    .log-status-ok  { color: #4ade80; font-weight: 700; flex-shrink: 0; }
+    .log-status-err { color: #f87171; font-weight: 700; flex-shrink: 0; }
+    .log-status-sys { color: #475569; flex-shrink: 0; }
+
+    /* ── Dashboard del Emprendedor ── */
+    #panel-emprendedor { max-width: 1080px; width: 100%; margin: 20px auto 0; padding: 0 16px; }
+    .dashboard-wrap { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; min-height: 600px; background: var(--panel); }
+
+    /* Sidebar */
+    .dash-sidebar { width: 220px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+    .dash-logo { display: flex; align-items: center; gap: 10px; padding: 16px; border-bottom: 1px solid var(--border); }
+    .dash-logo-icon { background: #25d366; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .dash-logo-text { font-size: 14px; font-weight: 800; }
+    .dash-logo-sub  { font-size: 11px; color: var(--muted); }
+    .dash-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
+    .dash-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; text-decoration: none; user-select: none; }
+    .dash-nav-item:hover { background: #f1f5f9; color: var(--text); }
+    .dash-nav-item.active { background: var(--emp-light); color: var(--emp); font-weight: 600; }
+    .dash-nav-section { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 8px 10px 3px; margin-top: 4px; }
+    .dash-sidebar-note { margin: 8px; padding: 10px; background: var(--emp-light); border: 1px solid var(--emp-border); border-radius: 8px; font-size: 11px; }
+    .dsn-top  { font-weight: 700; color: var(--emp); margin-bottom: 4px; }
+    .dsn-text { color: #4b7c60; line-height: 1.5; }
+
+    /* Main */
+    .dash-main { flex: 1; min-width: 0; background: var(--bg); display: flex; flex-direction: column; }
+    .dash-topbar { padding: 14px 20px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .dash-page-title { font-size: 20px; font-weight: 800; }
+    .dash-page-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .dash-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .dash-session-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; background: #dcfce7; color: var(--emp); padding: 4px 10px; border-radius: 20px; }
+    .dash-session-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emp); }
+    .dash-user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border: 1px solid var(--border); border-radius: 20px; background: var(--panel); }
+    .duc-avatar { width: 28px; height: 28px; background: var(--emp); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .duc-name  { font-weight: 600; font-size: 12px; }
+    .duc-email { font-size: 11px; color: var(--muted); }
+
+    /* Profile card */
+    .dash-profile-card { margin: 16px 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+    .dpc-avatar { width: 64px; height: 64px; border-radius: 12px; background: var(--emp-light); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+    .dpc-info   { flex: 1; min-width: 160px; }
+    .dpc-name   { font-size: 18px; font-weight: 800; color: var(--emp); }
+    .dpc-role   { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; background: var(--emp); color: #fff; margin: 4px 0 8px; }
+    .dpc-rows   { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+    .dpc-row    { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .dpc-row strong { color: var(--text); font-weight: 600; }
+    .dpc-status-col { display: flex; flex-direction: column; gap: 2px; }
+    .dpc-status-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .dpc-status { display: flex; flex-direction: column; gap: 6px; }
+    .dps-item   { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .dps-dot    { width: 18px; height: 18px; border-radius: 50%; background: var(--emp); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; color: #fff; }
+    .dpc-token  { font-family: 'Menlo','Consolas',monospace; font-size: 11px; color: var(--muted); }
+
+    /* Module cards */
+    .dash-modules { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; padding: 0 20px 16px; }
+    .dash-module-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .dm-header { display: flex; align-items: flex-start; gap: 10px; }
+    .dm-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .dm-icon-green  { background: #f0fdf4; }
+    .dm-icon-blue   { background: #eff6ff; }
+    .dm-icon-purple { background: #faf5ff; }
+    .dm-icon-orange { background: #fff7ed; }
+    .dm-title  { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .dm-entity { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .dm-entity-orange { background: #fff7ed; color: #ea580c; }
+    .dm-entity-blue   { background: #eff6ff; color: #2563eb; }
+    .dm-entity-purple { background: #faf5ff; color: #7c3aed; }
+    .dm-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .dm-list { font-size: 12px; color: var(--muted); padding-left: 16px; display: flex; flex-direction: column; gap: 3px; }
+    .dm-wip  { font-size: 11px; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 8px 10px; line-height: 1.5; }
+    .dm-empty { text-align: center; padding: 14px 0; flex: 1; }
+    .dm-empty-icon { font-size: 28px; opacity: .25; margin-bottom: 6px; }
+    .dm-empty-msg  { font-size: 13px; font-weight: 600; }
+    .dm-empty-sub  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .dm-stat-list  { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .dm-stat-row   { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .dm-stat-dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dm-stat-row > span:nth-child(2) { flex: 1; color: var(--muted); }
+    .dm-stat-val   { font-weight: 700; }
+    .dm-btn { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; transition: background .15s, color .15s; border: 1.5px solid; }
+    .dm-btn-green:hover  { background: var(--emp);  color: #fff; } .dm-btn-green  { border-color: var(--emp);  color: var(--emp); }
+    .dm-btn-blue:hover   { background: var(--cli);  color: #fff; } .dm-btn-blue   { border-color: var(--cli);  color: var(--cli); }
+    .dm-btn-purple:hover { background: #7c3aed; color: #fff; } .dm-btn-purple { border-color: #7c3aed; color: #7c3aed; }
+    .dm-btn-orange:hover { background: #ea580c; color: #fff; } .dm-btn-orange { border-color: #ea580c; color: #ea580c; }
+
+    /* Bottom: resumen + integraciones */
+    .dash-bottom { display: grid; grid-template-columns: 1fr 260px; gap: 14px; padding: 0 20px 16px; align-items: start; }
+    @media (max-width: 800px) { .dash-bottom { grid-template-columns: 1fr; } }
+    .dash-resumen { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .dr-header { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .dr-sim-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; background: #f1f5f9; color: var(--muted); border-radius: 20px; }
+    .dr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 700px) { .dr-stats { grid-template-columns: repeat(2, 1fr); } }
+    .dr-stat { text-align: center; padding: 12px 6px; border: 1px solid var(--border); border-radius: 8px; }
+    .dr-stat-icon  { font-size: 20px; margin-bottom: 4px; }
+    .dr-stat-num   { font-size: 22px; font-weight: 800; }
+    .dr-stat-orange { color: #ea580c; }
+    .dr-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+    .dash-integrations { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .di-header { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+    .di-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+    .di-item:first-of-type { border-top: none; padding-top: 0; }
+    .di-icon { font-size: 20px; flex-shrink: 0; }
+    .di-info { flex: 1; }
+    .di-name { font-size: 13px; font-weight: 600; }
+    .di-sub  { font-size: 11px; color: var(--muted); }
+    .di-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+    .di-badge.ok      { background: #dcfce7; color: var(--emp); }
+    .di-badge.pending { background: #fef9c3; color: #a16207; }
+
+    /* Footer info */
+    .dash-footer-info { display: grid; grid-template-columns: 1fr 220px; gap: 14px; padding: 0 20px 20px; align-items: start; }
+    @media (max-width: 700px) { .dash-footer-info { grid-template-columns: 1fr; } }
+    .dfi-left, .dfi-right { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .dfi-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+    .dfi-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; }
+    @media (max-width: 600px) { .dfi-grid { grid-template-columns: 1fr; } }
+    .dfi-grid > div { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .dfi-grid > div strong { color: var(--text); }
+    .dfi-ep-list { display: flex; flex-direction: column; gap: 5px; }
+    .dfi-ep { font-family: 'Menlo','Consolas',monospace; font-size: 12px; display: flex; align-items: center; gap: 6px; color: var(--muted); }
+    .dfi-m  { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+    .dfi-m.get { background: #dcfce7; color: #15803d; }
+
+    /* ── Vistas del dashboard (SPA) ── */
+    .dash-view.hidden { display: none !important; }
+    .view-placeholder { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .vp-header { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 14px; }
+    .vp-icon   { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .vp-title  { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .vp-sub    { font-size: 13px; color: var(--muted); }
+    .vp-body   { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .vp-note   { background: #fefce8; border: 1px solid #fde047; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #713f12; }
+    .vp-field  { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 12px; }
+    .vp-field:last-child { border-bottom: none; }
+    .vp-field-label { color: var(--muted); font-weight: 500; flex-shrink: 0; }
+    .vp-field-value { font-weight: 600; text-align: right; }
+    .vp-field-value.ok    { color: var(--emp); }
+    .vp-field-value.muted { color: var(--muted); font-weight: 400; }
+    .vp-field-value.mono  { font-family: 'Menlo','Consolas',monospace; font-size: 11px; }
+    /* Resumen: KPI cards */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 12px; padding: 20px; }
+    .metric-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .mc-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+    .mc-value { font-size: 28px; font-weight: 900; line-height: 1; }
+    .mc-value.blue   { color: var(--cli); }
+    .mc-value.green  { color: var(--emp); }
+    .mc-value.orange { color: #ea580c; }
+    .mc-value.red    { color: #ef4444; }
+    .mc-sub { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+    .mc-tag { display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .mc-tag.blue   { background: #eff6ff; color: var(--cli); }
+    .mc-tag.orange { background: #fff7ed; color: #ea580c; }
+    .mc-tag.green  { background: #f0fdf4; color: var(--emp); }
+    .mc-tag.red    { background: #fef2f2; color: #dc2626; }
+    /* Resumen: funnel + preferencias */
+    .resumen-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 20px 16px; }
+    @media (max-width: 680px) { .resumen-charts { grid-template-columns: 1fr; } }
+    .rc-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    .rc-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .rc-sub   { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+    .funnel-item { margin-bottom: 11px; }
+    .fi-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .fi-label  { color: var(--text); font-weight: 500; }
+    .fi-val    { font-weight: 700; }
+    .bar-bg    { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; }
+    .menu-item { margin-bottom: 10px; }
+    .mi-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+    .mi-pct    { font-weight: 700; }
+    .bar-bg.thin { height: 6px; }
+    /* Resumen: otras métricas */
+    .other-metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 0 20px 16px; }
+    .om-card  { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+    .om-icon  { font-size: 20px; flex-shrink: 0; }
+    .om-info  { flex: 1; min-width: 0; }
+    .om-label { font-size: 11px; color: var(--muted); line-height: 1.3; }
+    .om-val   { font-size: 18px; font-weight: 800; }
+    .om-tag   { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 10px; background: #f1f5f9; color: var(--muted); vertical-align: middle; }
+    .resumen-note { margin: 0 20px 20px; }
+
+    /* Endpoint status indicators */
+    .ep-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; font-family: 'Menlo','Consolas',monospace; white-space: nowrap; }
+    .ep-tag::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .ep-avail { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .ep-avail::before { background: #22c55e; }
+    .ep-pend  { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+    .ep-pend::before  { background: #f97316; animation: blink-ep .9s infinite alternate; }
+    @keyframes blink-ep { from { opacity: 1; } to { opacity: .2; } }
+    .ep-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+    /* Toast */
+    #error-toast {
+      display: none; position: fixed; bottom: 20px; right: 20px;
+      background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5;
+      border-radius: 10px; padding: 12px 16px; font-size: 13px;
+      max-width: 300px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+    #error-toast.show { display: block; animation: slidein .2s ease; }
+    @keyframes slidein { from { transform:translateY(10px); opacity:0; } to { transform:none; opacity:1; } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 1 — Bienvenida
+══════════════════════════════════════════ -->
+<div id="screen-welcome">
+
+  <header class="app-header">
+    <div class="logo-icon">&#128172;</div>
+    <div>
+      <div class="logo-text">InnovaLab</div>
+      <div class="logo-sub">Chatbot Demo</div>
+    </div>
+  </header>
+
+  <div class="welcome-body">
+    <h1 class="welcome-title">Bienvenido a InnovaLab Demo</h1>
+    <p class="welcome-sub">Seleccione cómo desea ingresar para continuar</p>
+
+    <div class="role-cards">
+      <div class="role-card emp">
+        <div class="role-icon">&#127978;</div>
+        <div class="role-title">Soy Emprendedor</div>
+        <div class="role-desc">Gestiono mi chatbot, productos y consultas.</div>
+        <button class="btn-role emp" onclick="entrarComo('emprendedor')">Ingresar como emprendedor</button>
+      </div>
+      <div class="role-card cli">
+        <div class="role-icon">&#128100;</div>
+        <div class="role-title">Soy Cliente</div>
+        <div class="role-desc">Quiero consultar productos y obtener información.</div>
+        <button class="btn-role cli" onclick="entrarComo('cliente')">Ingresar como cliente</button>
+      </div>
+    </div>
+
+    <p class="demo-note">&#8505;&#65039; Esta es una demo de prueba. No requiere registro.</p>
+  </div>
+
+  <footer class="welcome-footer">
+    <div class="footer-inner">
+      <div class="footer-tip">
+        <strong>&#128161; ¿Sabías?</strong>
+        Como emprendedor tenés acceso a funciones administrativas y consultas protegidas.
+        Como cliente podés consultar productos e información pública del negocio seleccionado.
+      </div>
+      <div class="footer-badge emp">
+        <div class="fbadge-dot"></div>
+        <div><div class="fb-label">Con autenticación (JWT)</div><div class="fb-sub">Acceso a funciones protegidas</div></div>
+      </div>
+      <div class="footer-badge cli">
+        <div class="fbadge-dot"></div>
+        <div><div class="fb-label">Sin autenticación</div><div class="fb-sub">Solo funciones públicas</div></div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 2 — App
+══════════════════════════════════════════ -->
+<div id="screen-app" class="hidden">
+
+  <header class="app-header">
+    <div class="logo-icon">&#128172;</div>
+    <div>
+      <div class="logo-text">InnovaLab</div>
+      <div class="logo-sub">Chatbot Demo</div>
+    </div>
+  </header>
+
+  <div class="mode-banner" id="mode-banner">
+    <span class="mode-icon" id="mode-icon"></span>
+    <div class="mode-info">
+      <div class="mode-title" id="mode-title"></div>
+      <div class="mode-sub"   id="mode-sub"></div>
+    </div>
+    <div class="session-badge" id="session-badge">
+      <div class="sdot"></div>
+      <span id="session-label"></span>
+    </div>
+    <button class="btn-back" onclick="volverInicio()">&#8592; Volver al inicio</button>
+  </div>
+
+  <div class="app-layout" id="app-layout">
+
+    <!-- Selector de negocio -->
+    <div class="selector-panel">
+      <div class="sp-header">
+        <div class="sp-title">Seleccione un negocio</div>
+        <div class="sp-sub" id="sp-sub"></div>
+      </div>
+      <div class="negocio-list">
+        <div class="negocio-item" data-id="1" onclick="seleccionarNegocio(1)">
+          <div class="radio-dot"><div class="radio-fill"></div></div>
+          <div class="negocio-icon">&#127859;</div>
+          <div><div class="negocio-name">Panadería García</div><div class="negocio-desc">Panadería artesanal y pastelería</div></div>
+        </div>
+        <div class="negocio-item" data-id="2" onclick="seleccionarNegocio(2)">
+          <div class="radio-dot"><div class="radio-fill"></div></div>
+          <div class="negocio-icon">&#128296;</div>
+          <div><div class="negocio-name">Ferretería López</div><div class="negocio-desc">Ferretería y materiales de construcción</div></div>
+        </div>
+        <div class="negocio-item" data-id="3" onclick="seleccionarNegocio(3)">
+          <div class="radio-dot"><div class="radio-fill"></div></div>
+          <div class="negocio-icon">&#128248;</div>
+          <div><div class="negocio-name">Ropa &amp; Accesorios Mía</div><div class="negocio-desc">Ropa, accesorios y moda</div></div>
+        </div>
+      </div>
+      <button class="btn-ingresar" id="btn-ingresar" disabled onclick="ingresarAlChat()"></button>
+    </div>
+
+    <!-- Chat area -->
+    <div id="chat-area" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="chat-panel">
+          <div class="cp-header" id="cp-header">
+            <div>
+              <div class="cp-title" id="cp-title"></div>
+              <div class="cp-meta"  id="cp-meta"></div>
+            </div>
+            <span class="cp-badge" id="cp-badge"></span>
+          </div>
+          <div class="chat-window" id="chat-window"></div>
+          <div class="quick-actions" id="quick-actions"></div>
+          <div class="chat-input-area">
+            <input id="msg-input" type="text" placeholder="Seleccioná un negocio para comenzar..."
+              onkeydown="if(event.key==='Enter')enviarMensaje()" disabled />
+            <button class="btn-send" id="btn-send" onclick="enviarMensaje()" disabled>Enviar</button>
+          </div>
+          <div class="chat-footer-note" id="chat-footer-note"></div>
+        </div>
+
+        <div class="catalog-section" id="catalog-section">
+          <div class="catalog-section-header" id="catalog-title">Catálogo</div>
+          <div id="catalog-content"></div>
+        </div>
+      </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PANEL DEL EMPRENDEDOR — Dashboard
+  ══════════════════════════════════════════ -->
+  <div id="panel-emprendedor" class="hidden">
+    <div class="dashboard-wrap">
+
+      <!-- Sidebar -->
+      <aside class="dash-sidebar">
+        <div class="dash-logo">
+          <div class="dash-logo-icon">&#128172;</div>
+          <div>
+            <div class="dash-logo-text">InnovaLab</div>
+            <div class="dash-logo-sub">Chatbot Comercial</div>
+          </div>
+        </div>
+
+        <nav class="dash-nav" id="dash-nav">
+          <a class="dash-nav-item active" data-vista="inicio" onclick="navegarA('inicio')">&#127968; Inicio</a>
+          <a class="dash-nav-item" onclick="irAlChat()">&#128172; Chat en vivo</a>
+          <div class="dash-nav-section">Configuración</div>
+          <a class="dash-nav-item" data-vista="config-bot" onclick="navegarA('config-bot')">&#129302; Configuración del Bot</a>
+          <a class="dash-nav-item" data-vista="productos" onclick="navegarA('productos')">&#128230; Productos</a>
+          <a class="dash-nav-item" data-vista="faqs" onclick="navegarA('faqs')">&#10067; FAQs</a>
+          <div class="dash-nav-section">Gestión</div>
+          <a class="dash-nav-item" data-vista="consultas" onclick="navegarA('consultas')">&#128172; Consultas</a>
+          <a class="dash-nav-item" data-vista="leads" onclick="navegarA('leads')">&#128100; Leads</a>
+          <div class="dash-nav-section">Métricas</div>
+          <a class="dash-nav-item" data-vista="resumen" onclick="navegarA('resumen')">&#128202; Resumen</a>
+          <div class="dash-nav-section">Sistema</div>
+          <a class="dash-nav-item" data-vista="perfil" onclick="navegarA('perfil')">&#128100; Mi perfil</a>
+          <a class="dash-nav-item" onclick="volverInicio()">&#128682; Cerrar sesión</a>
+        </nav>
+
+        <div class="dash-sidebar-note">
+          <div class="dsn-top">&#128161; Panel de prueba</div>
+          <div class="dsn-text">Algunas funciones están en construcción. La integración con la base de datos real se habilitará próximamente.</div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="dash-main">
+
+        <!-- Top bar (siempre visible) -->
+        <div class="dash-topbar">
+          <div>
+            <div class="dash-page-title" id="dash-page-title">Panel del Emprendedor</div>
+            <div class="dash-page-sub" id="dash-page-sub">Gestiona tu chatbot y tu negocio desde un solo lugar.</div>
+          </div>
+          <div class="dash-topbar-right">
+            <div class="dash-session-badge"><span class="dash-session-dot"></span>Sesión activa</div>
+            <div id="dash-user-chip" class="dash-user-chip"></div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: INICIO ── -->
+        <div id="view-inicio" class="dash-view">
+
+          <div id="dash-profile-card" class="dash-profile-card"></div>
+
+          <div class="dash-modules">
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-green">&#129302;</div>
+                <div>
+                  <div class="dm-title">Configuración del Bot</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-orange">Entidad: CONFIGURACION_BOT</span><span class="ep-tag ep-pend">sin endpoint</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Personaliza cómo se comunica tu chatbot con tus clientes.</div>
+              <ul class="dm-list">
+                <li>Mensaje de bienvenida</li><li>Horario de atención</li><li>Tono y estilo</li><li>Menú inicial</li>
+              </ul>
+              <div class="dm-wip">&#128296; En construcción &mdash; La integración con la base de datos estará disponible próximamente.</div>
+              <button class="dm-btn dm-btn-green" onclick="navegarA('config-bot')">Configurar</button>
+            </div>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-blue">&#128230;</div>
+                <div>
+                  <div class="dm-title">Productos</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-blue">Entidad: PRODUCTO</span><span class="ep-tag ep-avail">GET /api/catalog/productos</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Gestiona los productos o servicios que ofreces a tus clientes.</div>
+              <div class="dm-empty">
+                <div class="dm-empty-icon">&#128230;</div>
+                <div class="dm-empty-msg">Aún no hay productos cargados</div>
+                <div class="dm-empty-sub">Podrás agregar y administrar tus productos aquí.</div>
+              </div>
+              <button class="dm-btn dm-btn-blue" onclick="navegarA('productos')">Ver productos</button>
+            </div>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-purple">&#10067;</div>
+                <div>
+                  <div class="dm-title">Preguntas Frecuentes (FAQs)</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-purple">Entidad: FAQ</span><span class="ep-tag ep-avail">GET /api/faqs</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Crea y administra las preguntas frecuentes de tus clientes.</div>
+              <div class="dm-empty">
+                <div class="dm-empty-icon">&#10067;</div>
+                <div class="dm-empty-msg">Aún no hay FAQs creadas</div>
+                <div class="dm-empty-sub">Podrás agregar preguntas y respuestas para que tu bot las use.</div>
+              </div>
+              <button class="dm-btn dm-btn-purple" onclick="navegarA('faqs')">Ver FAQs</button>
+            </div>
+            <div class="dash-module-card">
+              <div class="dm-header">
+                <div class="dm-icon dm-icon-orange">&#128172;</div>
+                <div>
+                  <div class="dm-title">Consultas Recibidas</div>
+                  <div class="ep-row"><span class="dm-entity dm-entity-orange">Entidad: CONSULTA</span><span class="ep-tag ep-pend">sin endpoint</span></div>
+                </div>
+              </div>
+              <div class="dm-desc">Revisa las consultas que tus clientes han realizado al chatbot.</div>
+              <div class="dm-stat-list">
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#3b82f6"></span><span>Nuevas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#8b5cf6"></span><span>En proceso</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#16a34a"></span><span>Respondidas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#f59e0b"></span><span>Derivadas</span><span class="dm-stat-val">0</span></div>
+                <div class="dm-stat-row"><span class="dm-stat-dot" style="background:#ef4444"></span><span>Cerradas</span><span class="dm-stat-val">0</span></div>
+              </div>
+              <button class="dm-btn dm-btn-orange" onclick="navegarA('consultas')">Ver consultas</button>
+            </div>
+          </div>
+
+          <div class="dash-bottom">
+            <div class="dash-resumen">
+              <div class="dr-header">Resumen General <span class="dr-sim-badge">datos simulados</span></div>
+              <div class="dr-stats">
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#16a34a;">&#128172;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Consultas totales<br>Este mes</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#2563eb;">&#128100;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Leads capturados<br>Este mes</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#7c3aed;">&#128722;</div><div class="dr-stat-num">0</div><div class="dr-stat-label">Productos activos</div></div>
+                <div class="dr-stat"><div class="dr-stat-icon" style="color:#ea580c;">&#129302;</div><div class="dr-stat-num dr-stat-orange">100%</div><div class="dr-stat-label">Disponibilidad del bot<br>(Simulado)</div></div>
+              </div>
+            </div>
+            <div class="dash-integrations">
+              <div class="di-header">Integraciones</div>
+              <div class="di-item">
+                <div class="di-icon">&#128241;</div>
+                <div class="di-info"><div class="di-name">WhatsApp (Mock)</div><div class="di-sub">Simulación activa de mensajes entrantes</div></div>
+                <span class="di-badge ok">Conectado</span>
+              </div>
+              <div class="di-item">
+                <div class="di-icon">&#127760;</div>
+                <div class="di-info"><div class="di-name">Sitio Web</div><div class="di-sub">Integración con tu sitio (próximamente)</div></div>
+                <span class="di-badge pending">Pendiente</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-footer-info">
+            <div class="dfi-left">
+              <div class="dfi-title">&#128712; ¿Qué es cada sección?</div>
+              <div class="dfi-grid">
+                <div><strong>Configuración del Bot:</strong> Personaliza el comportamiento y mensajes de tu chatbot.</div>
+                <div><strong>Consultas:</strong> Visualiza y gestiona las conversaciones con tus clientes.</div>
+                <div><strong>Productos:</strong> Administra tu catálogo para que el bot pueda mostrarlo.</div>
+                <div><strong>Leads:</strong> Revisa los datos de contacto capturados por el chatbot.</div>
+                <div><strong>FAQs:</strong> Crea respuestas automáticas para las preguntas más frecuentes.</div>
+              </div>
+            </div>
+            <div class="dfi-right">
+              <div class="dfi-title">&#128279; Endpoints relacionados</div>
+              <div class="dfi-ep-list">
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/catalog/productos</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/consultations</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/faqs</div>
+                <div class="dfi-ep"><span class="dfi-m get">GET</span>/api/configuracion-bot</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /view-inicio -->
+
+        <!-- ── VISTA: CONFIGURACIÓN DEL BOT ── -->
+        <div id="view-config-bot" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-green">&#129302;</div>
+              <div>
+                <div class="vp-title">Configuración del Bot <span class="dm-entity dm-entity-orange">CONFIGURACION_BOT</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-pend">sin endpoint · GET /api/configuracion-bot</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Parámetros actuales del chatbot para este negocio.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="vp-field">
+                <span class="vp-field-label">Mensaje de bienvenida</span>
+                <span class="vp-field-value" style="font-size:12px;max-width:55%;">¡Hola! Soy el asistente virtual. ¿En qué puedo ayudarte hoy?</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Horario de atención</span>
+                <span class="vp-field-value muted">Lunes a viernes &middot; 9 hs a 18 hs</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Tono y estilo</span>
+                <span class="vp-field-value muted">Informal &middot; Vos a vos</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Menú inicial</span>
+                <span class="vp-field-value muted" style="font-size:12px;">Ver catálogo · FAQs · Hablar con persona</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Derivación automática</span>
+                <span class="vp-field-value ok">Activada</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Fallback habilitado</span>
+                <span class="vp-field-value ok">Sí</span>
+              </div>
+            </div>
+            <div class="vp-note">&#128296; La edición de estos valores estará disponible en próximos sprints una vez integrada la base de datos. Entidad: <strong>CONFIGURACION_BOT</strong> del DER.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: PRODUCTOS ── -->
+        <div id="view-productos" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-blue">&#128230;</div>
+              <div>
+                <div class="vp-title">Productos <span class="dm-entity dm-entity-blue">PRODUCTO</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">GET /api/catalog/productos</span><span class="ep-tag ep-avail">GET /api/catalog/productos/{id}</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Catálogo de productos o servicios de tu emprendimiento.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#128230;</div>
+                <div class="dm-empty-msg">Aún no hay productos cargados</div>
+                <div class="dm-empty-sub">Los productos se integrarán desde la base de datos mediante <span style="font-family:monospace;font-size:11px;">GET /api/catalog/productos</span></div>
+              </div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint disponible: <strong>GET /api/catalog/productos?usuarioId={id}</strong> · La administración completa se implementará en próximos sprints.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: FAQs ── -->
+        <div id="view-faqs" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-purple">&#10067;</div>
+              <div>
+                <div class="vp-title">Preguntas Frecuentes <span class="dm-entity dm-entity-purple">FAQ</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">GET /api/faqs</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Respuestas automáticas que el bot usa para atender consultas repetitivas.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#10067;</div>
+                <div class="dm-empty-msg">Aún no hay FAQs creadas</div>
+                <div class="dm-empty-sub">El 70% de las consultas son preguntas repetitivas: horarios, envíos, precios. Configuralas aquí.</div>
+              </div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint: <strong>GET /api/faqs?usuarioId={id}</strong> · La administración de FAQs se implementará junto con la entidad <strong>CATEGORIA_FAQ</strong>.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: CONSULTAS ── -->
+        <div id="view-consultas" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon dm-icon-orange">&#128172;</div>
+              <div>
+                <div class="vp-title">Consultas <span class="dm-entity dm-entity-orange">CONSULTA</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-avail">POST /api/consultations</span><span class="ep-tag ep-avail">POST /{id}/productos · M4</span><span class="ep-tag ep-pend">GET /api/consultations · requiere JWT+DB</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Registro de conversaciones realizadas por tus clientes al chatbot.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="vp-field"><span class="vp-field-label">Nuevas</span><span class="vp-field-value" style="color:#3b82f6;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">En proceso</span><span class="vp-field-value" style="color:#8b5cf6;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Respondidas</span><span class="vp-field-value ok">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Derivadas a humano</span><span class="vp-field-value" style="color:#f59e0b;">0</span></div>
+              <div class="vp-field"><span class="vp-field-label">Cerradas</span><span class="vp-field-value muted">0</span></div>
+            </div>
+            <div class="vp-note">&#128279; Endpoint: <strong>GET /api/consultations</strong> · Los estados provienen de la entidad <strong>ESTADO_CONSULTA</strong> del DER.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: LEADS ── -->
+        <div id="view-leads" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="vp-header">
+              <div class="vp-icon" style="background:#faf5ff;">&#128100;</div>
+              <div>
+                <div class="vp-title">Leads <span class="dm-entity dm-entity-purple">LEAD</span></div>
+                <div class="ep-row" style="margin-top:4px;"><span class="ep-tag ep-pend">sin endpoint · GET /api/leads</span></div>
+                <div class="vp-sub" style="margin-top:4px;">Datos de contacto de potenciales clientes capturados por el chatbot.</div>
+              </div>
+            </div>
+            <div class="vp-body">
+              <div class="dm-empty" style="padding:32px 0;">
+                <div class="dm-empty-icon" style="font-size:36px;">&#128100;</div>
+                <div class="dm-empty-msg">No hay leads registrados aún</div>
+                <div class="dm-empty-sub">Cuando un cliente deje sus datos de contacto en el chat, aparecerá aquí.</div>
+              </div>
+            </div>
+            <div class="vp-note">Los leads se capturan cuando el usuario completa el flujo de contacto comercial. Entidades relacionadas: <strong>LEAD</strong> y <strong>CONSULTA</strong> del DER.</div>
+          </div>
+        </div>
+
+        <!-- ── VISTA: RESUMEN DE MÉTRICAS ── -->
+        <div id="view-resumen" class="dash-view hidden">
+
+          <div style="padding:16px 20px 0;">
+            <div style="background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#92400e;">
+              <span style="font-size:16px;">&#128202;</span>
+              <span><strong>Todos los datos son simulados.</strong> Los eventos de tracking (session_started, catalog_viewed, fallback_triggered, etc.) aún no tienen endpoints reales. Estructura lista para integración.</span>
+              <span class="ep-tag ep-pend" style="flex-shrink:0;margin-left:auto;">sin tracking endpoints</span>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="mc-label">M1 &middot; Alcance</div>
+              <div class="mc-value blue">183</div>
+              <div class="mc-sub">Sesiones iniciadas este mes</div>
+              <span class="mc-tag blue">session_started</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">Leads generados</div>
+              <div class="mc-value green">23</div>
+              <div class="mc-sub">Datos de contacto capturados</div>
+              <span class="mc-tag green">M9 &middot; human_derivation</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">Tasa de conversión</div>
+              <div class="mc-value green">25.7%</div>
+              <div class="mc-sub">Consultas que llegaron a compra</div>
+              <span class="mc-tag green">47 / 183 usuarios</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">M7 &middot; Fallback</div>
+              <div class="mc-value orange">8.2%</div>
+              <div class="mc-sub">Mensajes no entendidos por el bot</div>
+              <span class="mc-tag orange">fallback_triggered</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">Abandonos</div>
+              <div class="mc-value red">96</div>
+              <div class="mc-sub">Usuarios sin completar ninguna acción</div>
+              <span class="mc-tag red">M2 + M11</span>
+            </div>
+            <div class="metric-card">
+              <div class="mc-label">M8 &middot; Intención Comercial</div>
+              <div class="mc-value blue">47</div>
+              <div class="mc-sub">Consultan precio o inician presupuesto</div>
+              <span class="mc-tag blue">quote_initiated</span>
+            </div>
+          </div>
+
+          <div class="resumen-charts">
+
+            <div class="rc-card">
+              <div class="rc-title">M13 &middot; Embudo de conversión</div>
+              <div class="rc-sub">De la sesión a la compra &middot; datos simulados</div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Inicio (sesión)</span><span class="fi-val">183</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:100%;background:#2563eb;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Catálogo (M4)</span><span class="fi-val">87</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:47.5%;background:#7c3aed;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Consulta / Precio (M8)</span><span class="fi-val">47</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:25.7%;background:#16a34a;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Lead / Contacto (M9)</span><span class="fi-val">23</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:12.6%;background:#f59e0b;"></div></div>
+              </div>
+              <div class="funnel-item">
+                <div class="fi-header"><span class="fi-label">Conversión</span><span class="fi-val">12</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width:6.6%;background:#ea580c;"></div></div>
+              </div>
+            </div>
+
+            <div class="rc-card">
+              <div class="rc-title">M3 &middot; Preferencia de interacción</div>
+              <div class="rc-sub">Distribución por opción de menú elegida</div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Catálogo</span><span class="mi-pct">45%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:45%;background:#2563eb;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>FAQ</span><span class="mi-pct">30%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:30%;background:#7c3aed;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Presupuesto</span><span class="mi-pct">15%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:15%;background:#16a34a;"></div></div>
+              </div>
+              <div class="menu-item">
+                <div class="mi-header"><span>Atención humana</span><span class="mi-pct">10%</span></div>
+                <div class="bar-bg thin"><div class="bar-fill" style="width:10%;background:#ea580c;"></div></div>
+              </div>
+              <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+                <div class="rc-title">M11 &middot; Fuga de alta intención</div>
+                <div class="rc-sub" style="margin-bottom:8px;">Consultaron precio pero no dejaron datos</div>
+                <div class="funnel-item">
+                  <div class="fi-header"><span class="fi-label">Fuga</span><span class="fi-val" style="color:#ef4444;">35%</span></div>
+                  <div class="bar-bg"><div class="bar-fill" style="width:35%;background:#ef4444;"></div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="other-metrics">
+            <div class="om-card">
+              <div class="om-icon">&#128241;</div>
+              <div class="om-info">
+                <div class="om-label">M2 &middot; Abandono en llegada</div>
+                <div class="om-val">22 <span class="om-tag">12%</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#128230;</div>
+              <div class="om-info">
+                <div class="om-label">M4 &middot; Interacción en catálogo</div>
+                <div class="om-val">87 <span class="om-tag">catalog_viewed</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#8505;&#65039;</div>
+              <div class="om-info">
+                <div class="om-label">M5 &middot; Solicitudes de información</div>
+                <div class="om-val">65 <span class="om-tag">info_requested</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#10067;</div>
+              <div class="om-info">
+                <div class="om-label">M6 &middot; FAQs resueltas por el bot</div>
+                <div class="om-val">52 <span class="om-tag">faq_viewed</span></div>
+              </div>
+            </div>
+            <div class="om-card">
+              <div class="om-icon">&#128100;</div>
+              <div class="om-info">
+                <div class="om-label">M9 &middot; Derivaciones a atención humana</div>
+                <div class="om-val">23 <span class="om-tag">human_derivation</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-note">
+            <div class="vp-note">&#128202; <strong>Datos simulados &middot; Plan de Tracking Equipo 16.</strong> Los eventos técnicos requeridos (session_started, catalog_viewed, fallback_triggered, etc.) están definidos en la planilla de tracking del equipo de Data Analytics. La integración con endpoints reales se realizará en próximos sprints.</div>
+          </div>
+
+        </div><!-- /view-resumen -->
+
+        <!-- ── VISTA: MI PERFIL ── -->
+        <div id="view-perfil" class="dash-view hidden">
+          <div class="view-placeholder">
+            <div class="ep-row"><span class="ep-tag ep-pend">sin endpoint · GET /api/users/profile</span><span class="ep-tag ep-pend">sin endpoint · GET /api/sessions</span></div>
+            <div id="perfil-card" class="dash-profile-card" style="margin:0;"></div>
+            <div class="vp-body">
+              <div class="vp-field">
+                <span class="vp-field-label">Rol</span>
+                <span class="vp-field-value ok">Emprendedor</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Estado de sesión</span>
+                <span class="vp-field-value ok">Activa</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Autenticación</span>
+                <span class="vp-field-value ok">JWT Demo</span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Token (parcial)</span>
+                <span class="vp-field-value mono" id="perfil-token"></span>
+              </div>
+              <div class="vp-field">
+                <span class="vp-field-label">Entidades relacionadas</span>
+                <span class="vp-field-value muted">USUARIO &middot; SESION_USUARIO</span>
+              </div>
+            </div>
+            <div class="vp-note">La edición de perfil y la gestión de sesiones se habilitarán en próximos sprints. Entidades: <strong>USUARIO</strong> y <strong>SESION_USUARIO</strong> del DER.</div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="request-log-wrap">
+    <div class="log-panel">
+      <div class="log-panel-header">
+        Request log &mdash; <span id="log-count">0 llamadas</span>
+      </div>
+      <div id="log-entries"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="error-toast"></div>
+
+<script>
+  const BASE_URL = 'https://chatbot-innova-backend.onrender.com';
+
+  const TOKENS = {
+    1: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJnYXJjaWFAZGVtby5jb20iLCJyb2wiOiJlbXByZW5kZWRvciIsImlhdCI6MTc4MTEwNzI5MCwiZXhwIjoxODEyNjQzMjkwfQ.43FMlymh40ZEhXJBi09Di47FiqvVp72AFKh-LJICCS8',
+    2: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJsb3BlekBkZW1vLmNvbSIsInJvbCI6ImVtcHJlbmRlZG9yIiwiaWF0IjoxNzgxMTA3MjkwLCJleHAiOjE4MTI2NDMyOTB9.ohMa8937NL05rSTvXlkP_aMeWedxnWF4LQnPZScS9U0',
+    3: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJtaWFAZGVtby5jb20iLCJyb2wiOiJlbXByZW5kZWRvciIsImlhdCI6MTc4MTEwNzI5MCwiZXhwIjoxODEyNjQzMjkwfQ.odsCE2mOmrrf6_GO2wWzkS1fzv8j7NM_RMZaadyHfmE',
+  };
+
+  const EMPRENDEDORES = {
+    1: {
+      nombre: 'Panadería García', email: 'garcia@demo.com',
+      chips: ['Ver catálogo', 'Preguntas frecuentes', 'Hablar con una persona', 'hacen envíos?', 'cómo pago'],
+      faqOpciones: [
+        { label: 'Cómo hacer un pedido', msg: 'cómo hacer un pedido' },
+        { label: 'Hacen envíos?',        msg: 'hacen envíos' },
+        { label: 'Medios de pago',       msg: 'cómo pago' },
+      ],
+    },
+    2: {
+      nombre: 'Ferretería López', email: 'lopez@demo.com',
+      chips: ['Ver catálogo', 'Preguntas frecuentes', 'Hablar con una persona', 'tienen garantía?', 'hacen entregas?'],
+      faqOpciones: [
+        { label: 'Garantías',              msg: 'tienen garantía' },
+        { label: 'Entregas a domicilio',   msg: 'hacen entregas' },
+        { label: 'Cambios y devoluciones', msg: 'devoluciones' },
+      ],
+    },
+    3: {
+      nombre: 'Ropa & Accesorios Mía', email: 'mia@demo.com',
+      chips: ['Ver catálogo', 'Preguntas frecuentes', 'Hablar con una persona', 'horarios', 'precio'],
+      faqOpciones: [
+        { label: 'Talles disponibles', msg: 'talles' },
+        { label: 'Horarios',           msg: 'horarios' },
+        { label: 'Precios',            msg: 'precio' },
+      ],
+    },
+  };
+
+  let modoActual      = null;
+  let usuarioIdActual = null;
+  let sessionId       = null;
+  let consultaId      = null;
+  let tokenActual     = null;
+  let cargandoChat    = false;
+  let totalLlamadas   = 0;
+
+  // ── Navegación ────────────────────────────────────────────────────────────
+
+  function entrarComo(modo) {
+    modoActual = modo;
+    const isEmp = modo === 'emprendedor';
+
+    // Reset estado
+    usuarioIdActual = null; tokenActual = null; sessionId = null;
+    totalLlamadas = 0;
+    document.getElementById('log-entries').innerHTML = '';
+    document.getElementById('log-count').textContent = '0 llamadas';
+    document.getElementById('chat-window').innerHTML = '';
+    document.getElementById('catalog-section').classList.remove('visible');
+    document.getElementById('quick-actions').innerHTML = '';
+    document.getElementById('panel-emprendedor').classList.add('hidden');
+    document.getElementById('chat-area').classList.remove('hidden');
+    document.getElementById('app-layout').classList.remove('hidden');
+    document.querySelectorAll('.negocio-item').forEach(el => el.className = 'negocio-item');
+
+    // Mode banner
+    document.getElementById('mode-banner').className = 'mode-banner ' + (isEmp ? 'emp' : 'cli');
+    document.getElementById('mode-icon').textContent  = isEmp ? '🔒' : '👤';
+    document.getElementById('mode-title').textContent = isEmp ? 'MODO EMPRENDEDOR' : 'MODO CLIENTE VISITANTE';
+    document.getElementById('mode-sub').textContent   = isEmp ? 'Acceso autenticado con JWT' : 'Sin autenticación';
+
+    const sb = document.getElementById('session-badge');
+    sb.className = 'session-badge ' + (isEmp ? 'active' : 'inactive');
+    document.getElementById('session-label').textContent = isEmp ? 'Sesión activa' : 'Sin sesión';
+
+    // Selector
+    document.getElementById('sp-sub').textContent = isEmp
+      ? 'Elija el negocio que desea administrar'
+      : 'Elija el negocio con el que desea consultar';
+
+    const btnIng = document.getElementById('btn-ingresar');
+    btnIng.className = 'btn-ingresar ' + (isEmp ? 'emp' : 'cli');
+    btnIng.textContent = isEmp ? 'Ingresar al panel emprendedor' : 'Ingresar al chat como cliente';
+    btnIng.disabled = true;
+
+    // Chat panel
+    document.getElementById('cp-header').className = 'cp-header ' + (isEmp ? 'emp' : 'cli');
+    document.getElementById('cp-title').textContent = isEmp ? 'SESIÓN EMPRENDEDOR' : 'CLIENTE VISITANTE';
+    document.getElementById('cp-meta').textContent  = '';
+    document.getElementById('cp-badge').textContent = '';
+    document.getElementById('cp-badge').className   = 'cp-badge';
+
+    const btnSend = document.getElementById('btn-send');
+    btnSend.className = 'btn-send ' + (isEmp ? 'emp' : 'cli');
+    btnSend.disabled  = true;
+
+    const inp = document.getElementById('msg-input');
+    inp.disabled     = true;
+    inp.placeholder  = 'Seleccioná un negocio para comenzar...';
+
+    document.getElementById('chat-footer-note').className = 'chat-footer-note';
+    document.getElementById('chat-footer-note').innerHTML = '';
+
+    document.getElementById('screen-welcome').classList.add('hidden');
+    document.getElementById('screen-app').classList.remove('hidden');
+  }
+
+  function volverInicio() {
+    document.getElementById('screen-app').classList.add('hidden');
+    document.getElementById('screen-welcome').classList.remove('hidden');
+    modoActual = null; usuarioIdActual = null; tokenActual = null; consultaId = null;
+  }
+
+  // ── Selección de negocio ──────────────────────────────────────────────────
+
+  function seleccionarNegocio(id) {
+    usuarioIdActual = id;
+    const cls = modoActual === 'emprendedor' ? 'selected-emp' : 'selected-cli';
+    document.querySelectorAll('.negocio-item').forEach(el => el.className = 'negocio-item');
+    document.querySelector(`.negocio-item[data-id="${id}"]`).className = `negocio-item ${cls}`;
+    document.getElementById('btn-ingresar').disabled = false;
+  }
+
+  function ingresarAlChat() {
+    if (!usuarioIdActual) return;
+    const emp   = EMPRENDEDORES[usuarioIdActual];
+    const isEmp = modoActual === 'emprendedor';
+
+    sessionId   = `demo-${usuarioIdActual}-${Date.now()}`;
+    tokenActual = isEmp ? TOKENS[usuarioIdActual] : null;
+
+    // Header del chat
+    document.getElementById('cp-meta').textContent = isEmp
+      ? `Negocio: ${emp.nombre}   ·   Usuario: ${emp.email}`
+      : `Negocio: ${emp.nombre}`;
+
+    const badge = document.getElementById('cp-badge');
+    if (isEmp) { badge.textContent = '🔒 JWT cargado'; badge.className = 'cp-badge jwt'; }
+    else        { badge.textContent = 'Sin autenticación'; badge.className = 'cp-badge noauth'; }
+
+    // Habilitar input
+    const inp = document.getElementById('msg-input');
+    inp.disabled    = false;
+    inp.placeholder = 'Escribí tu mensaje...';
+    document.getElementById('btn-send').disabled = false;
+
+    // Footer note
+    const fn = document.getElementById('chat-footer-note');
+    if (isEmp) { fn.className = 'chat-footer-note emp'; fn.innerHTML = '🔒 Las solicitudes incluyen token JWT'; }
+    else        { fn.className = 'chat-footer-note';     fn.innerHTML = 'ℹ Usted está navegando como visitante'; }
+
+    // Limpiar
+    document.getElementById('chat-window').innerHTML = '';
+    document.getElementById('catalog-section').classList.remove('visible');
+    document.getElementById('log-entries').innerHTML = '';
+    totalLlamadas = 0;
+    document.getElementById('log-count').textContent = '0 llamadas';
+
+    // Chips
+    const qa = document.getElementById('quick-actions');
+    qa.innerHTML = '';
+    emp.chips.forEach(s => {
+      const chip = document.createElement('button');
+      chip.className = 'quick-chip';
+      chip.textContent = s;
+      chip.onclick = () => {
+        if (s === 'Ver catálogo')         { verCatalogo(); return; }
+        if (s === 'Preguntas frecuentes') { mostrarFAQ();  return; }
+        document.getElementById('msg-input').value = s;
+        enviarMensaje();
+      };
+      qa.appendChild(chip);
+    });
+
+    logRequest('—', isEmp ? 'Sesión JWT cargada' : 'Vista como visitante', null);
+
+    if (isEmp) {
+      mostrarPanelEmprendedor(emp);
+      return;
+    }
+
+    // Cliente: mostrar chat e iniciar consulta real en el backend
+    document.getElementById('panel-emprendedor').classList.add('hidden');
+    document.getElementById('chat-area').classList.remove('hidden');
+
+    fetch(`${BASE_URL}/api/consultations?usuarioId=${usuarioIdActual}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ canal: 'web', tipoConsulta: 'chatbot' }),
+    })
+      .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+      .then(({ ok, status, data }) => {
+        logRequest('POST', `/api/consultations?usuarioId=${usuarioIdActual}`, ok ? 201 : status);
+        consultaId = data.id ?? null;
+        const saludo = data.mensajeBienvenida ?? `¡Hola! Soy el asistente virtual de ${emp.nombre}. ¿En qué puedo ayudarte hoy?`;
+        agregarBurbuja('bot', saludo);
+      })
+      .catch(() => {
+        logRequest('POST', `/api/consultations?usuarioId=${usuarioIdActual}`, 0);
+        agregarBurbuja('bot', `¡Hola! Soy el asistente virtual de ${emp.nombre}. ¿En qué puedo ayudarte hoy?`);
+      });
+
+    inp.focus();
+  }
+
+  // ── Navegación interna del dashboard (SPA) ───────────────────────────────
+
+  const VISTA_INFO = {
+    'inicio':     { titulo: 'Panel del Emprendedor',  sub: 'Gestiona tu chatbot y tu negocio desde un solo lugar.' },
+    'config-bot': { titulo: 'Configuración del Bot',  sub: 'Personaliza cómo se comunica tu chatbot con tus clientes.' },
+    'productos':  { titulo: 'Productos',              sub: 'Administra el catálogo de productos de tu negocio.' },
+    'faqs':       { titulo: 'Preguntas Frecuentes',   sub: 'Creá y gestioná las respuestas automáticas del bot.' },
+    'consultas':  { titulo: 'Consultas',              sub: 'Revisá las conversaciones recibidas de tus clientes.' },
+    'leads':      { titulo: 'Leads',                  sub: 'Clientes potenciales capturados por el chatbot.' },
+    'resumen':    { titulo: 'Resumen de Métricas',    sub: 'Datos simulados · Plan de Tracking Equipo 16.' },
+    'perfil':     { titulo: 'Mi Perfil',              sub: 'Información de tu cuenta y sesión activa.' },
+  };
+
+  function navegarA(vista) {
+    document.querySelectorAll('.dash-view').forEach(v => v.classList.add('hidden'));
+    const target = document.getElementById('view-' + vista);
+    if (target) target.classList.remove('hidden');
+    document.querySelectorAll('#dash-nav [data-vista]').forEach(a => a.classList.remove('active'));
+    const navItem = document.querySelector(`#dash-nav [data-vista="${vista}"]`);
+    if (navItem) navItem.classList.add('active');
+    const info = VISTA_INFO[vista];
+    if (info) {
+      document.getElementById('dash-page-title').textContent = info.titulo;
+      document.getElementById('dash-page-sub').textContent = info.sub;
+    }
+    if (vista === 'perfil') rellenarPerfil();
+    document.querySelector('.dash-main').scrollTop = 0;
+  }
+
+  function rellenarPerfil() {
+    if (!usuarioIdActual) return;
+    const emp = EMPRENDEDORES[usuarioIdActual];
+    const ahora = new Date().toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const iniciales = emp.nombre.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const tokenCorto = tokenActual ? tokenActual.substring(0, 22) + '...' : '';
+    document.getElementById('perfil-card').innerHTML = `
+      <div class="dpc-avatar">&#127978;</div>
+      <div class="dpc-info">
+        <div class="dpc-name">${esc(emp.nombre)}</div>
+        <span class="dpc-role">Emprendedor</span>
+        <div class="dpc-rows">
+          <div class="dpc-row">&#9993; <strong>${esc(emp.email)}</strong></div>
+          <div class="dpc-row">&#128100; Usuario ID: <strong>${usuarioIdActual}</strong></div>
+          <div class="dpc-row">&#128197; Sesión iniciada: <strong>${ahora}</strong></div>
+        </div>
+      </div>
+      <div class="dpc-status-col">
+        <div class="dpc-status-title">Estado de la cuenta</div>
+        <div class="dpc-status">
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Sesión activa con JWT</span></div>
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Acceso: Emprendedor</span></div>
+        </div>
+      </div>
+    `;
+    const tokenEl = document.getElementById('perfil-token');
+    if (tokenEl) tokenEl.textContent = tokenActual ? tokenActual.substring(0, 30) + '...' : '—';
+  }
+
+  // ── Panel Emprendedor ─────────────────────────────────────────────────────
+
+  function mostrarPanelEmprendedor(emp) {
+    const ahora = new Date().toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const iniciales = emp.nombre.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const tokenCorto = tokenActual ? tokenActual.substring(0, 22) + '...' : '';
+
+    // Top bar: chip de usuario
+    document.getElementById('dash-user-chip').innerHTML = `
+      <div class="duc-avatar">${esc(iniciales)}</div>
+      <div><div class="duc-name">${esc(emp.nombre)}</div><div class="duc-email">${esc(emp.email)}</div></div>
+    `;
+
+    // Tarjeta de perfil
+    document.getElementById('dash-profile-card').innerHTML = `
+      <div class="dpc-avatar">&#127978;</div>
+      <div class="dpc-info">
+        <div class="dpc-name">${esc(emp.nombre)}</div>
+        <span class="dpc-role">Emprendedor</span>
+        <div class="dpc-rows">
+          <div class="dpc-row">&#9993; <strong>${esc(emp.email)}</strong></div>
+          <div class="dpc-row">&#128100; Usuario ID: <strong>${usuarioIdActual}</strong></div>
+          <div class="dpc-row">&#128197; Última sesión: <strong>${ahora}</strong></div>
+        </div>
+      </div>
+      <div class="dpc-status-col">
+        <div class="dpc-status-title">Estado de la cuenta</div>
+        <div class="dpc-status">
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Sesión activa con JWT</span></div>
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Acceso: Emprendedor</span></div>
+          <div class="dps-item"><div class="dps-dot">&#10003;</div><span>Token: <span class="dpc-token">${esc(tokenCorto)}</span></span></div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('app-layout').classList.add('hidden');
+    document.getElementById('mode-banner').classList.add('hidden');
+    document.getElementById('panel-emprendedor').classList.remove('hidden');
+    navegarA('inicio');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function irAlChat() {
+    const emp = EMPRENDEDORES[usuarioIdActual];
+    document.getElementById('panel-emprendedor').classList.add('hidden');
+    document.getElementById('app-layout').classList.remove('hidden');
+    document.getElementById('mode-banner').classList.remove('hidden');
+
+    const win = document.getElementById('chat-window');
+    if (!win.children.length) {
+      setTimeout(() => {
+        agregarBurbuja('bot', `¡Hola! Soy el asistente virtual de ${emp.nombre}. ¿En qué puedo ayudarte hoy?`);
+      }, 200);
+    }
+    document.getElementById('msg-input').focus();
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+
+  async function enviarMensaje() {
+    if (cargandoChat) return;
+    const inp = document.getElementById('msg-input');
+    const mensaje = inp.value.trim();
+    if (!mensaje) return;
+
+    inp.value = '';
+    agregarBurbuja('user', mensaje);
+    mostrarTyping();
+    cargandoChat = true;
+    document.getElementById('btn-send').disabled = true;
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (tokenActual) headers['Authorization'] = `Bearer ${tokenActual}`;
+
+    try {
+      const res  = await fetch(`${BASE_URL}/api/chatbot/chat`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ mensaje, sessionId, usuarioId: usuarioIdActual }),
+      });
+      const data = await res.json();
+      quitarTyping();
+      logRequest('POST', '/api/chatbot/chat', res.status);
+
+      if (res.status === 401) {
+        agregarBurbuja('sistema', 'Acceso denegado — esta acción requiere autenticación');
+      } else if (!res.ok) {
+        agregarBurbuja('bot', data.error || `Error ${res.status}`, null, true);
+      } else {
+        agregarBurbuja('bot', data.respuesta, { fuente: data.fuente, intencion: data.intencion });
+        if (data.sessionId) sessionId = data.sessionId;
+      }
+    } catch (e) {
+      quitarTyping();
+      agregarBurbuja('bot', 'No se pudo conectar con el servidor.', null, true);
+      logRequest('POST', '/api/chatbot/chat', 0);
+    } finally {
+      cargandoChat = false;
+      document.getElementById('btn-send').disabled = false;
+      inp.focus();
+    }
+  }
+
+  // ── Catálogo ──────────────────────────────────────────────────────────────
+
+  async function verCatalogo() {
+    if (!usuarioIdActual) return;
+    const emp     = EMPRENDEDORES[usuarioIdActual];
+    const section = document.getElementById('catalog-section');
+    const content = document.getElementById('catalog-content');
+
+    document.getElementById('catalog-title').textContent = `Catálogo — ${emp.nombre}`;
+    section.classList.add('visible');
+    content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">Cargando productos...</div>';
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    const h = {};
+    if (tokenActual) h['Authorization'] = `Bearer ${tokenActual}`;
+
+    try {
+      const res  = await fetch(`${BASE_URL}/api/catalog/productos?usuarioId=${usuarioIdActual}`, { headers: h });
+      const data = await res.json();
+      logRequest('GET', `/api/catalog/productos?usuarioId=${usuarioIdActual}`, res.status);
+
+      if (res.status === 401) {
+        content.innerHTML = '<div style="padding:24px;text-align:center;color:#dc2626;">Acceso denegado — esta acción requiere autenticación</div>';
+        return;
+      }
+      if (!res.ok) {
+        content.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);">${data.error || 'Error al cargar'}</div>`;
+        return;
+      }
+      if (!Array.isArray(data) || data.length === 0) {
+        content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">No hay productos.</div>';
+        return;
+      }
+      const grid = document.createElement('div');
+      grid.className = 'catalog-grid';
+      data.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="p-name">${esc(p.nombre)}</div>
+          <div class="p-desc">${esc(p.descripcion || '')}</div>
+          <div class="p-price">${p.precio != null ? '$' + Number(p.precio).toLocaleString('es-AR') : 'Sin precio'}</div>
+          ${p.stock != null ? `<div class="p-stock">Stock: ${p.stock}</div>` : ''}
+        `;
+        card.onclick = () => verProductoDetalle(p.id);
+        grid.appendChild(card);
+      });
+      content.innerHTML = '';
+      content.appendChild(grid);
+    } catch (e) {
+      content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">No se pudo conectar.</div>';
+      logRequest('GET', `/api/catalog/productos?usuarioId=${usuarioIdActual}`, 0);
+    }
+  }
+
+  async function verProductoDetalle(id) {
+    const content = document.getElementById('catalog-content');
+    content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">Cargando...</div>';
+
+    const h = {};
+    if (tokenActual) h['Authorization'] = `Bearer ${tokenActual}`;
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/catalog/productos/${id}?usuarioId=${usuarioIdActual}`, { headers: h });
+      const p   = await res.json();
+      logRequest('GET', `/api/catalog/productos/${id}`, res.status);
+
+      if (!res.ok) {
+        content.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);">${esc(p.error || 'Error al cargar')}</div>`;
+        return;
+      }
+
+      const detail = document.createElement('div');
+      detail.className = 'product-detail';
+      detail.innerHTML = `
+        ${p.imagen ? `<img src="${esc(p.imagen)}" alt="${esc(p.nombre)}" class="pd-img">` : ''}
+        <div class="pd-nombre">${esc(p.nombre)}</div>
+        <div class="pd-desc">${esc(p.descripcion || '')}</div>
+        <div class="pd-precio">${p.precio != null ? '$' + Number(p.precio).toLocaleString('es-AR') : 'Sin precio'}</div>
+        ${p.stock != null ? `<div class="pd-stock">Stock disponible: ${p.stock}</div>` : ''}
+        <div class="pd-actions">
+          <button class="pd-btn primary" onclick="verCatalogo()">Ver otros productos</button>
+          <button class="pd-btn" onclick="cerrarCatalogo()">Volver al chat</button>
+        </div>
+      `;
+      content.innerHTML = '';
+      content.appendChild(detail);
+
+      // Tracking M4 — silencioso, el cliente no lo ve
+      if (consultaId) {
+        fetch(`${BASE_URL}/api/consultations/${consultaId}/productos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productoId: id, cantidad: 1 }),
+        })
+        .then(r => logRequest('POST', `/api/consultations/${consultaId}/productos`, r.status))
+        .catch(() => logRequest('POST', `/api/consultations/${consultaId}/productos`, 0));
+      }
+    } catch (e) {
+      content.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);">No se pudo conectar.</div>';
+      logRequest('GET', `/api/catalog/productos/${id}`, 0);
+    }
+  }
+
+  function cerrarCatalogo() {
+    document.getElementById('catalog-section').classList.remove('visible');
+  }
+
+  function mostrarFAQ() {
+    const emp = EMPRENDEDORES[usuarioIdActual];
+    agregarBurbuja('bot', 'Elige la opción que más se acerque a tu consulta:');
+
+    const qa = document.getElementById('quick-actions');
+    qa.innerHTML = '';
+
+    emp.faqOpciones.forEach(op => {
+      const chip = document.createElement('button');
+      chip.className = 'quick-chip';
+      chip.textContent = op.label;
+      chip.onclick = () => {
+        document.getElementById('msg-input').value = op.msg;
+        restaurarChips();
+        enviarMensaje();
+      };
+      qa.appendChild(chip);
+    });
+
+    const volver = document.createElement('button');
+    volver.className = 'quick-chip';
+    volver.textContent = '← Volver';
+    volver.onclick = () => restaurarChips();
+    qa.appendChild(volver);
+  }
+
+  function restaurarChips() {
+    const emp = EMPRENDEDORES[usuarioIdActual];
+    const qa  = document.getElementById('quick-actions');
+    qa.innerHTML = '';
+    emp.chips.forEach(s => {
+      const chip = document.createElement('button');
+      chip.className = 'quick-chip';
+      chip.textContent = s;
+      chip.onclick = () => {
+        if (s === 'Ver catálogo')         { verCatalogo(); return; }
+        if (s === 'Preguntas frecuentes') { mostrarFAQ();  return; }
+        document.getElementById('msg-input').value = s;
+        enviarMensaje();
+      };
+      qa.appendChild(chip);
+    });
+  }
+
+  // ── Burbujas ──────────────────────────────────────────────────────────────
+
+  function agregarBurbuja(tipo, texto, meta = null, isError = false) {
+    const win = document.getElementById('chat-window');
+
+    if (tipo === 'sistema') {
+      const row = document.createElement('div');
+      row.className = 'bubble-row sistema';
+      const bub = document.createElement('div');
+      bub.className = 'bubble';
+      bub.textContent = texto;
+      row.appendChild(bub);
+      win.appendChild(row);
+      scrollChat(); return;
+    }
+
+    const row = document.createElement('div');
+    row.className = `bubble-row ${tipo}`;
+
+    if (tipo === 'bot') {
+      const av = document.createElement('div');
+      av.className = 'bot-avatar';
+      av.textContent = '🤖';
+      row.appendChild(av);
+    }
+
+    const bub = document.createElement('div');
+    bub.className = 'bubble' + (isError ? ' error-bub' : '');
+    bub.textContent = texto;
+
+    if (meta) {
+      const md = document.createElement('div');
+      md.className = 'meta';
+      if (meta.fuente) {
+        const b = document.createElement('span');
+        b.className = `badge ${meta.fuente === 'db' ? 'badge-db' : 'badge-fallback'}`;
+        b.textContent = meta.fuente === 'db' ? 'DB' : 'fallback';
+        md.appendChild(b);
+      }
+      if (meta.intencion) {
+        const b = document.createElement('span');
+        b.className = 'badge badge-intent';
+        b.textContent = meta.intencion;
+        md.appendChild(b);
+      }
+      bub.appendChild(md);
+    }
+
+    row.appendChild(bub);
+    win.appendChild(row);
+    scrollChat();
+  }
+
+  function mostrarTyping() {
+    const win = document.getElementById('chat-window');
+    const row = document.createElement('div');
+    row.className = 'bubble-row bot';
+    row.id = 'typing-indicator';
+    const av = document.createElement('div');
+    av.className = 'bot-avatar'; av.textContent = '🤖';
+    const t = document.createElement('div');
+    t.className = 'typing';
+    t.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    row.appendChild(av); row.appendChild(t);
+    win.appendChild(row); scrollChat();
+  }
+
+  function quitarTyping() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function scrollChat() {
+    const win = document.getElementById('chat-window');
+    win.scrollTop = win.scrollHeight;
+  }
+
+  // ── Request log ───────────────────────────────────────────────────────────
+
+  function logRequest(metodo, ruta, statusCode) {
+    const entries = document.getElementById('log-entries');
+    totalLlamadas++;
+    document.getElementById('log-count').textContent =
+      `${totalLlamadas} llamada${totalLlamadas !== 1 ? 's' : ''}`;
+
+    const time = new Date().toTimeString().slice(0, 8);
+
+    const methodHtml = metodo === 'POST'
+      ? `<span class="log-m-post">POST</span>`
+      : metodo === 'GET'
+        ? `<span class="log-m-get">GET </span>`
+        : `<span class="log-m-sys"> —  </span>`;
+
+    let statusHtml = '';
+    if (statusCode !== null) {
+      const labels = { 0:'ERR_FAILED', 400:'Bad Request', 401:'Unauthorized', 403:'Forbidden', 404:'Not Found', 500:'Server Error' };
+      const ok = statusCode >= 200 && statusCode < 300;
+      statusHtml = `<span class="log-arrow">→</span>
+        <span class="${ok ? 'log-status-ok' : 'log-status-err'}">${statusCode === 0 ? 'ERR_FAILED' : statusCode + ' ' + (labels[statusCode] || '')}</span>`;
+    }
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `
+      <span class="log-time">[${time}]</span>
+      ${methodHtml}
+      <span class="log-route">${esc(ruta)}</span>
+      ${statusHtml}
+    `;
+
+    entries.insertBefore(entry, entries.firstChild);
+    while (entries.children.length > 8) entries.removeChild(entries.lastChild);
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

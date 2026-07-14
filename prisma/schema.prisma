@@ -13,128 +13,132 @@ datasource db {
 }
 
 model Usuario {
-  id               String              @id @default(uuid())
-  nombre           String
-  email            String              @unique
-  password         String
-  rol              Rol                 @default(EMPRENDEDOR)
-  estado           EstadoUsuario       @default(ACTIVO)
-  fechaRegistro    DateTime            @default(now())
-  ultimaSesion     DateTime?         
-  
-  bot              ConfiguracionBot? 
-  historialSesiones HistorialSesion[] 
-  actividades      RegistroActividad[]
+  id            String        @id @default(uuid())
+  nombre        String
+  email         String        @unique
+  password      String
+  rol           Rol           @default(EMPRENDEDOR)
+  estado        EstadoUsuario @default(ACTIVO)
+  fechaRegistro DateTime      @default(now())
+  ultimaSesion  DateTime?
+
+  bot               ConfiguracionBot?
+  historialSesiones HistorialSesion[]
+  actividades       RegistroActividad[]
+  Consulta          Consulta?
 }
 
 model HistorialSesion {
-  id           String   @id @default(uuid())
-  usuarioId    String
-  usuario      Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  fechaLogin   DateTime @default(now())
-  dispositivo  String?
-  ip           String?
+  id          String   @id @default(uuid())
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  fechaLogin  DateTime @default(now())
+  //fechaFin    DateTime?
+  dispositivo String?
+  ip          String?
 }
 
 model ConfiguracionBot {
-  id                    String         @id @default(uuid())
-  usuarioId             String         @unique
-  usuario               Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
+  id        String  @id @default(uuid())
+  usuarioId String  @unique
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
   // Estado y Datos del Negocio
-  activo                Boolean        @default(false)
-  nombreNegocio         String?
-  descripcionBreve      String?        @db.Text
-  horarioAtencion       String?
-  telefono              String?
-  logoUrl               String?
-  
+  activo           Boolean @default(false)
+  nombreNegocio    String?
+  descripcionBreve String? @db.Text
+  horarioAtencion  String?
+  telefono         String?
+  logoUrl          String?
+
   // Comportamiento del Bot
-  mensajeBienvenida     String?        @db.Text
-  mensajeFueraHorario   String?        @db.Text
-  respuestaDerivacion   String?        @db.Text
-  derivacionAutomatica  Boolean        @default(false)
-  slug                  String?        @unique
-  
+  mensajeBienvenida    String? @db.Text
+  mensajeFueraHorario  String? @db.Text
+  respuestaDerivacion  String? @db.Text
+  derivacionAutomatica Boolean @default(false)
+  slug                 String? @unique
+
   // historialSesiones
-  fechaCreacion         DateTime       @default(now())
-  fechaActualizacion    DateTime       @updatedAt
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
 
   // Relaciones
-  categoriasFAQ         CategoriaFAQ[]
-  faqs                  Faq[]
-  productos             Producto[]
-  sesiones              SesionChat[]
-  rubroId               String?
-  rubro                 Rubro?         @relation(fields: [rubroId], references: [id])
+  categoriasFAQ CategoriaFAQ[]
+  faqs          Faq[]
+  productos     Producto[]
+  sesiones      SesionChat[]
+  rubroId       String?
+  rubro         Rubro?         @relation(fields: [rubroId], references: [id])
 }
 
 model Rubro {
-  id          String             @id @default(uuid())
-  nombre      String             @unique
-  activo      Boolean            @default(true)
-  
-  bots        ConfiguracionBot[]
+  id     String  @id @default(uuid())
+  nombre String  @unique
+  activo Boolean @default(true)
+
+  bots ConfiguracionBot[]
 }
 
 model CategoriaFAQ {
-  id              String           @id @default(uuid())
-  botId           String
-  bot             ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
-  nombre          String           
-  
-  faqs            Faq[]            
-  
-  fechaCreacion   DateTime         @default(now())
+  id     String           @id @default(uuid())
+  botId  String
+  bot    ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+  nombre String
+
+  faqs Faq[]
+
+  fechaCreacion DateTime @default(now())
 }
 
 model Faq {
-  id                  String           @id @default(uuid())
-  botId               String
-  bot                 ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
-  
-  categoriaId         String
-  categoria           CategoriaFAQ     @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
-  
-  pregunta            String
-  respuesta           String           @db.Text
-  activa      Boolean   @default(true)
-  
-  fechaCreacion       DateTime         @default(now())
-  fechaModificacion   DateTime         @updatedAt
+  id    String           @id @default(uuid())
+  botId String
+  bot   ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  categoriaId String
+  categoria   CategoriaFAQ @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+
+  pregunta  String
+  respuesta String  @db.Text
+  activa    Boolean @default(true)
+  //orden              Int?
+
+  fechaCreacion     DateTime      @default(now())
+  fechaModificacion DateTime      @updatedAt
+  ConsultaFaq       ConsultaFaq[]
 }
 
 model Producto {
-  id                  String           @id @default(uuid())
-  botId               String
-  bot                 ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
-  
-  nombre              String
-  descripcion         String?          @db.Text
-  precio              Decimal          @db.Decimal(10, 2)
-  stock               Int              @default(0)
-  urlImagen           String?
-  activo              Boolean          @default(true) 
-  
-  fechaCreacion       DateTime         @default(now())
-  fechaActualizacion  DateTime         @updatedAt
+  id    String           @id @default(uuid())
+  botId String
+  bot   ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  nombre      String
+  descripcion String? @db.Text
+  precio      Decimal @db.Decimal(10, 2)
+  stock       Int     @default(0)
+  urlImagen   String?
+  activo      Boolean @default(true)
+
+  fechaCreacion      DateTime           @default(now())
+  fechaActualizacion DateTime           @updatedAt
+  ConsultaProducto   ConsultaProducto[]
 }
 
 model SesionChat {
-  id                  String           @id @default(uuid())
-  botId               String
-  bot                 ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
-  
-  numeroCliente       String           
-  estado              EstadoChat       @default(BOT_ACTIVO)
-  
-  fechaCreacion       DateTime         @default(now())
-  fechaActualizacion  DateTime         @updatedAt
+  id    String           @id @default(uuid())
+  botId String
+  bot   ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  numeroCliente String
+  estado        EstadoChat @default(BOT_ACTIVO)
+
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
 
   // Se actualizó aquí también a botId y numeroCliente
-  @@unique([botId, numeroCliente]) 
+  @@unique([botId, numeroCliente])
 }
-
 
 // Distintos roles que se maneja actualmente
 enum Rol {
@@ -159,8 +163,8 @@ model RegistroActividad {
   id          String   @id @default(uuid())
   usuarioId   String
   usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  accion      String   
-  detalle     String   @db.Text 
+  accion      String
+  detalle     String   @db.Text
   ip          String?
   dispositivo String?
   fecha       DateTime @default(now())
@@ -171,12 +175,131 @@ model EventoTelemetry {
   botId         String?
   sessionId     String
   tipoUsuario   String   @default("ANONIMO") // Posibles valores: ANONIMO, EMPRENDEDOR, CLIENTE
-  usuarioId     String?   
+  usuarioId     String?
   ip            String   @default("desconocida")
   dispositivo   String   @default("desconocido")
   fechaServidor DateTime
-  eventos       Json     
+  eventos       Json
   fechaCreacion DateTime @default(now())
 
-  @@map("eventos_telemetry") 
+  @@map("eventos_telemetry")
+}
+
+// 5. ESTADO_CONSULTA — estados posibles de una consulta  => estado consulta lo pondria en consulta, como atributo
+model EstadoConsulta {
+  id            String   @id @default(uuid())
+  nombre        String // nueva | en_proceso | respondida | derivada | cerrada
+  descripcion   String?
+  fechaCreacion DateTime @default(now())
+
+  consultas Consulta[]
+
+  @@map("estado_consulta")
+}
+
+// 4. CONSULTA — núcleo del sistema, registra cada interacción
+model Consulta {
+  id                 String    @id @default(uuid())
+  usuarioId          String    @unique
+  estadoConsultaId   String
+  tipoConsulta       String?
+  prioridad          String?
+  canal              String?
+  asunto             String?
+  descripcion        String?
+  derivadaA          String?
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime  @updatedAt
+  fechaCierre        DateTime?
+
+  usuario           Usuario            @relation(fields: [usuarioId], references: [id])
+  estadoConsulta    EstadoConsulta     @relation(fields: [estadoConsultaId], references: [id])
+  mensajes          Mensaje[]
+  lead              Lead?
+  consultaProductos ConsultaProducto[]
+  consultaFaqs      ConsultaFaq[]
+
+  @@map("consulta")
+}
+
+// 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
+model Mensaje {
+  id                 String   @id @default(uuid())
+  consultaId         String
+  mensajePadreId     String?
+  emisor             String
+  contenido          String
+  tipoMensaje        String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+  leido              Boolean  @default(false)
+
+  consulta     Consulta  @relation(fields: [consultaId], references: [id])
+  mensajePadre Mensaje?  @relation("MensajeHilo", fields: [mensajePadreId], references: [id])
+  respuestas   Mensaje[] @relation("MensajeHilo")
+  adjuntos     Adjunto[]
+
+  @@map("mensaje")
+}
+
+// 7. ADJUNTO — archivos adjuntos a mensajes  => se puede dejar para posible escalamiento. aunque
+model Adjunto {
+  id            String   @id @default(uuid())
+  mensajeId     String
+  url           String
+  tipo          String?
+  nombre        String?
+  tamano        String?
+  fechaCreacion DateTime @default(now())
+
+  mensaje Mensaje @relation(fields: [mensajeId], references: [id])
+
+  @@map("adjunto")
+}
+
+// 8. LEAD — datos de contacto capturados en la conversación (opcional por consulta)
+model Lead {
+  id                 String   @id @default(uuid())
+  consultaId         String   @unique
+  asignadoA          Int?
+  nombre             String?
+  email              String?
+  telefono           String?
+  empresa            String?
+  motivoInteres      String?
+  estado             String?
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+
+  @@map("lead")
+}
+
+// 10. CONSULTA_PRODUCTO — tabla intermedia Consulta ↔ Producto (N a N)
+model ConsultaProducto {
+  id         String @id @default(uuid())
+  consultaId String
+
+  productoId String
+  cantidad   Int?
+  detalle    String?
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+  producto Producto @relation(fields: [productoId], references: [id])
+
+  @@map("consulta_producto")
+}
+
+// 13. CONSULTA_FAQ — tabla intermedia Consulta ↔ FAQ (N a N)
+model ConsultaFaq {
+  id            String   @id @default(uuid())
+  consultaId    String
+  faqId         String
+  fechaConsulta DateTime @default(now())
+
+  consulta Consulta @relation(fields: [consultaId], references: [id])
+  faq      Faq      @relation(fields: [faqId], references: [id])
+
+  @@map("consulta_faq")
 }

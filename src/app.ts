@@ -14,6 +14,12 @@ import { errorHandler } from './middlewares/error.middleware';
 import prisma from './lib/prisma';
 import { corsOptions } from './lib/cors.config';
 import publicRoutes from './routes/public.routes';
+import path from 'path';
+import swaggerSpec from './config/swagger';
+
+import chatbotRoutes from './routes/chatbot.routes';
+import consultationsRoutes from './routes/consultations.routes';
+import whatsappRoutes from './routes/whatsapp.routes';
 
 const app = express();
 
@@ -77,5 +83,13 @@ app.use('/api/products', productRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/public', publicRoutes);
 app.use(errorHandler);
+
+app.use('/demo', express.static(path.join(__dirname, '../demo')));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/consultations', consultationsRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 export default app;
