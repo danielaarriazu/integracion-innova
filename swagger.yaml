@@ -276,6 +276,8 @@ tags:
     description: Catálogo de productos del negocio
   - name: Telemetría
     description: Registro de eventos de comportamiento del usuario
+  - name: Público 
+    description: Endpoints abiertos para el widget del chat  
 
 paths:
    # ==========================================================================
@@ -788,17 +790,12 @@ paths:
   /api/bot/config:
     patch:
       tags: [Bot]
-      summary: Actualizar logo del bot (multipart/form-data)
+      summary: Actualizar configuración completa y/o logo (multipart/form-data)
       description: |
-        Sube una imagen de logo para el bot mediante `multipart/form-data`.
- 
-        La imagen se sube a Cloudinary y la URL pública resultante se guarda en `ConfiguracionBot.logoUrl`.
- 
-        **Campo del form:** `imagenLogo`
- 
-        **Formatos aceptados:** JPG, JPEG, PNG, WEBP
- 
-        **Tamaño máximo:** 5MB
+        Permite actualizar la imagen del logo y/o cualquier otro campo de la configuración del bot simultáneamente.
+        
+        Se debe usar `multipart/form-data`.
+        **Formatos aceptados para imagenLogo:** JPG, JPEG, PNG, WEBP (Máx 5MB).
       security:
         - bearerAuth: []
       requestBody:
@@ -812,9 +809,30 @@ paths:
                   type: string
                   format: binary
                   description: Archivo de imagen del logo
+                activo:
+                  type: boolean
+                nombreNegocio:
+                  type: string
+                rubroId:
+                  type: string
+                  format: uuid
+                descripcionBreve:
+                  type: string
+                horarioAtencion:
+                  type: string
+                telefono:
+                  type: string
+                mensajeBienvenida:
+                  type: string
+                mensajeFueraHorario:
+                  type: string
+                respuestaDerivacion:
+                  type: string
+                derivacionAutomatica:
+                  type: boolean
       responses:
         '200':
-          description: Logo actualizado. La respuesta incluye la URL de Cloudinary.
+          description: Configuración y logo actualizados.
           content:
             application/json:
               example:
@@ -1345,49 +1363,18 @@ paths:
       summary: Crear un producto
       description: |
         Agrega un producto al catálogo del bot.
- 
+
         Soporta dos modos:
-        - **JSON puro:** sin imagen, enviar `urlImagen` como string de URL si se desea.
-        - **Con imagen:** usar `multipart/form-data` con el campo `imagen` (JPG/PNG/WEBP, máx 5MB). La imagen se sube automáticamente a Cloudinary.
- 
+        - **JSON puro (`application/json`):** sin imagen, enviar `urlImagen` como string de URL si se desea.
+        - **Con imagen (`multipart/form-data`):** usar el campo `imagen` (JPG/PNG/WEBP, máx 5MB). La imagen se sube automáticamente a Cloudinary.
+
         Registra la acción en `RegistroActividad`.
       security:
         - bearerAuth: []
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              type: object
-              required: [nombre, precio]
-              properties:
-                nombre:
-                  type: string
-                  minLength: 1
-                  maxLength: 200
-                  example: "Remera básica manga corta"
-                descripcion:
-                  type: string
-                  maxLength: 2000
-                  example: "100% algodón peinado. Disponible en talles S a XL."
-                precio:
-                  type: number
-                  description: Precio en pesos argentinos, máximo 2 decimales. Debe ser mayor a 0.
-                  example: 8500.00
-                stock:
-                  type: integer
-                  minimum: 0
-                  default: 0
-                  example: 50
-                urlImagen:
-                  type: string
-                  format: uri
-                  description: URL externa de la imagen (alternativa a subir archivo)
-                  example: "https://ejemplo.com/remera.jpg"
-                activo:
-                  type: boolean
-                  default: true
-                  example: true
+          # OPCIÓN 1: SUBIDA CON ARCHIVO
           multipart/form-data:
             schema:
               type: object
@@ -1410,15 +1397,36 @@ paths:
                   type: string
                   format: binary
                   description: Imagen del producto (JPG, PNG, WEBP — máx 5MB)
-            examples:
-              json_simple:
-                summary: Producto sin imagen
-                value:
-                  nombre: "Pantalón cargo"
-                  descripcion: "Pantalón cargo con 6 bolsillos. Talles 28-40."
-                  precio: 15000
-                  stock: 30
-                  activo: true
+          # OPCIÓN 2: SOLO TEXTO / URL
+          application/json:
+            schema:
+              type: object
+              required: [nombre, precio]
+              properties:
+                nombre:
+                  type: string
+                  maxLength: 200
+                  example: "Remera básica manga corta"
+                descripcion:
+                  type: string
+                  maxLength: 2000
+                  example: "100% algodón peinado. Disponible en talles S a XL."
+                precio:
+                  type: number
+                  example: 8500.00
+                stock:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                  example: 50
+                urlImagen:
+                  type: string
+                  format: uri
+                  example: "https://ejemplo.com/remera.jpg"
+                activo:
+                  type: boolean
+                  default: true
+                  example: true
       responses:
         '201':
           description: Producto creado
@@ -1429,19 +1437,10 @@ paths:
                 message: "Producto creado con éxito."
                 producto:
                   id: "e5f6a7b8-c9d0-1234-abcd-567890123456"
-                  botId: "c8d1e2f3-4567-89ab-cdef-012345678901"
                   nombre: "Remera básica manga corta"
-                  descripcion: "100% algodón peinado. Disponible en talles S a XL."
                   precio: "8500.00"
                   stock: 50
-                  urlImagen: null
                   activo: true
-                  fechaCreacion: "2026-07-02T12:00:00.000Z"
-                  fechaActualizacion: "2026-07-02T12:00:00.000Z"
-        '400':
-          description: Validación fallida (precio negativo, stock decimal, etc.)
-        '401':
-          description: No autenticado
  
     get:
       tags: [Productos]
@@ -1517,66 +1516,46 @@ paths:
       summary: Actualizar un producto
       description: |
         Actualiza uno o más campos de un producto.
- 
+
         Todos los campos son opcionales. Se debe enviar al menos uno.
- 
-        Si se envía el archivo `imagen` como `multipart/form-data`, se sube a Cloudinary
-        y la URL anterior **no se elimina** de Cloudinary (eliminar la imagen previa
-        es una mejora pendiente).
- 
-        Para poner `descripcion` o `urlImagen` en null, enviarlos explícitamente como `null`.
- 
-        Registra la acción en `RegistroActividad`.
+        Soporta tanto `application/json` como `multipart/form-data` si deseás actualizar la foto.
       security:
         - bearerAuth: []
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
             format: uuid
-          description: ID del producto a actualizar
-          example: "e5f6a7b8-c9d0-1234-abcd-567890123456"
       requestBody:
         required: true
         content:
+          # OPCIÓN 1: ACTUALIZAR CON NUEVA IMAGEN
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nombre: { type: string }
+                descripcion: { type: string }
+                precio: { type: number }
+                stock: { type: integer }
+                activo: { type: boolean }
+                imagen:
+                  type: string
+                  format: binary
+                  description: Nueva imagen (reemplaza la anterior)
+          # OPCIÓN 2: ACTUALIZAR SOLO DATOS DE TEXTO
           application/json:
             schema:
               type: object
               properties:
-                nombre:
-                  type: string
-                  maxLength: 200
-                descripcion:
-                  type: string
-                  maxLength: 2000
-                  nullable: true
-                precio:
-                  type: number
-                stock:
-                  type: integer
-                  minimum: 0
-                urlImagen:
-                  type: string
-                  format: uri
-                  nullable: true
-                activo:
-                  type: boolean
-            examples:
-              actualizar_stock:
-                summary: Actualizar solo el stock
-                value:
-                  stock: 25
-              actualizar_precio:
-                summary: Actualizar precio y activar
-                value:
-                  precio: 9200.00
-                  activo: true
-              desactivar:
-                summary: Desactivar producto sin eliminar
-                value:
-                  activo: false
+                nombre: { type: string, maxLength: 200 }
+                descripcion: { type: string, maxLength: 2000, nullable: true }
+                precio: { type: number }
+                stock: { type: integer, minimum: 0 }
+                urlImagen: { type: string, format: uri, nullable: true }
+                activo: { type: boolean }
       responses:
         '200':
           description: Producto actualizado
@@ -1584,7 +1563,6 @@ paths:
             application/json:
               example:
                 success: true
-                message: "Producto actualizado con éxito."
                 producto:
                   id: "e5f6a7b8-c9d0-1234-abcd-567890123456"
                   nombre: "Remera básica manga corta"
@@ -1868,4 +1846,54 @@ paths:
             application/json:
               example:
                 error: "Demasiados eventos detectados. Bloqueo temporal por seguridad."
- 
+  # ==========================================================================
+  # SLUG PÚBLICO DEL CHATBOT
+  # ==========================================================================
+  
+  /api/public/chatbot/{slug}/faqs:
+    get:
+      summary: "Obtener FAQs públicas del chatbot"
+      description: "Retorna todas las preguntas frecuentes activas de un bot identificado por su slug."
+      tags:
+        - Público
+      parameters:
+        - name: "slug"
+          in: "path"
+          required: true
+          description: "El slug único del negocio"
+          schema:
+            type: "string"
+      responses:
+        '200':
+          description: "FAQs obtenidas exitosamente"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  faqs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FAQ' # <--- AQUÍ ESTÁ LA MAGIA DE LA CONSISTENCIA
+              examples:
+                respuesta_exitosa:
+                  value:
+                    success: true
+                    faqs:
+                      - id: "d4e5f6a7-b8c9-0123-abcd-456789012345"
+                        botId: "c8d1e2f3-4567-89ab-cdef-012345678901"
+                        categoriaId: "f1e2d3c4-b5a6-7890-abcd-ef0123456789"
+                        pregunta: "¿Cuáles son los medios de pago?"
+                        respuesta: "Aceptamos transferencias y MercadoPago."
+                        activa: true
+                        categoria:
+                          id: "f1e2d3c4-b5a6-7890-abcd-ef0123456789"
+                          nombre: "Precios y pagos"
+        '404':
+          description: "Negocio o bot no encontrado"
+          content:
+            application/json:
+              example:
+                success: false
+                error: "Negocio no encontrado."

@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { registrarActividad } from './activity.service';
 import { UpdateBotInput } from '../types/bot.types';
+import { generarSlug } from '../utils/slug';
 
 export const obtenerConfiguracionBot = async (usuarioId: string) => {
   const bot = await prisma.configuracionBot.findUnique({
@@ -28,6 +29,7 @@ export const actualizarConfiguracionBot = async (data: UpdateBotInput) => {
     data: {
       activo: data.activo,
       nombreNegocio: data.nombreNegocio?.trim(),
+      ...(data.nombreNegocio && { slug: generarSlug(data.nombreNegocio.trim()) }),
       rubroId: data.rubroId,
       descripcionBreve: data.descripcionBreve?.trim(),
       horarioAtencion: data.horarioAtencion?.trim(),

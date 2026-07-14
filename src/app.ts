@@ -13,6 +13,7 @@ import telemetryRoutes from './routes/telemetry.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import prisma from './lib/prisma';
 import { corsOptions } from './lib/cors.config';
+import publicRoutes from './routes/public.routes';
 
 const app = express();
 
@@ -74,7 +75,7 @@ app.use('/api/faqs', faqRoutes);
 app.use('/api/bot', botRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/telemetry', telemetryRoutes);
-
+app.use('/api/public', publicRoutes);
 app.use(errorHandler);
 
 export default app;

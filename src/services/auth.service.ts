@@ -4,6 +4,7 @@ import prisma from '../lib/prisma';
 import { registrarActividad } from './activity.service';
 import { RegisterInput, LoginInput, AuthResult } from '../types/auth.types';
 import { EstadoUsuario } from '@prisma/client';
+import { generarSlug } from '../utils/slug';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -31,6 +32,7 @@ export const registrarUsuario = async (data: RegisterInput): Promise<{ id: strin
       bot: {
         create: {
           nombreNegocio: data.nombreNegocio || data.nombre,
+          slug: generarSlug(data.nombreNegocio || data.nombre),
           activo: true,
           mensajeBienvenida: `¡Hola! Bienvenido/a a ${data.nombreNegocio || data.nombre}. ¿En qué te puedo ayudar hoy?`,
           respuestaDerivacion: ' Aguarda un momento, te estoy comunicando con un asesor humano para que te atienda personalmente.'

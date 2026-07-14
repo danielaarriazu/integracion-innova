@@ -13,7 +13,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@duckdb/node-api": "^1.5.2-r.1",
     "@prisma/client": "^5.22.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
