@@ -65,6 +65,7 @@ model ConfiguracionBot {
   faqs                  Faq[]
   productos             Producto[]
   sesiones              SesionChat[]
+  consultas             Consulta[]
   rubroId               String?
   rubro                 Rubro?         @relation(fields: [rubroId], references: [id])
 }
@@ -118,6 +119,7 @@ model Producto {
   
   fechaCreacion       DateTime         @default(now())
   fechaActualizacion  DateTime         @updatedAt
+  consultas           ConsultaProducto[]
 }
 
 model SesionChat {
@@ -164,4 +166,70 @@ model RegistroActividad {
   ip          String?
   dispositivo String?
   fecha       DateTime @default(now())
+}
+
+model Consulta {
+  id                 String           @id @default(uuid())
+  botId              String
+  bot                ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+  sessionAnonimaId   String?
+  clienteNombre      String?
+  clienteTelefono    String?
+  estado             EstadoConsulta   @default(NUEVA)
+  derivada           Boolean          @default(false)
+  cerradaPor         CerradaPor?
+  tipoConsulta       String?
+  prioridad          String?
+  canal              String           @default("web")
+  asunto             String?
+  descripcion        String?          @db.Text
+  derivadaA          String?
+  fechaCreacion      DateTime         @default(now())
+  fechaActualizacion DateTime         @updatedAt
+  fechaCierre        DateTime?
+  mensajes           Mensaje[]
+  productos          ConsultaProducto[]
+
+  @@index([botId, fechaActualizacion])
+  @@index([sessionAnonimaId])
+}
+
+model Mensaje {
+  id                 String    @id @default(uuid())
+  consultaId         String
+  consulta           Consulta  @relation(fields: [consultaId], references: [id], onDelete: Cascade)
+  mensajePadreId     String?
+  mensajePadre       Mensaje?  @relation("MensajeHilo", fields: [mensajePadreId], references: [id])
+  respuestas         Mensaje[] @relation("MensajeHilo")
+  emisor             String
+  contenido          String    @db.Text
+  tipoMensaje        String?   @default("texto")
+  leido              Boolean   @default(false)
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime  @updatedAt
+
+  @@index([consultaId, fechaCreacion])
+}
+
+model ConsultaProducto {
+  id         String   @id @default(uuid())
+  consultaId String
+  consulta   Consulta @relation(fields: [consultaId], references: [id], onDelete: Cascade)
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  cantidad   Int      @default(1)
+  fecha      DateTime @default(now())
+
+  @@unique([consultaId, productoId])
+}
+
+enum EstadoConsulta {
+  NUEVA
+  EN_PROCESO
+  CERRADA
+}
+
+enum CerradaPor {
+  BOT
+  EMPRENDEDOR
 }
