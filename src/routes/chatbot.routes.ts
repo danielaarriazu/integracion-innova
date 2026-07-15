@@ -1,78 +1,50 @@
 import { Router } from 'express';
-import { chat, whatsappMock } from '../controllers/chatbot.controller';
+import { chat } from '../controllers/chatbot.controller';
 
 const router = Router();
 
 /**
- * @swagger
+* @swagger
  * /api/chatbot/chat:
- *   post:
- *     tags: [Chatbot]
- *     summary: Enviar un mensaje al bot
- *     description: |
- *       Envía un mensaje del cliente al bot del emprendedor. El bot responde según las FAQs y configuración del negocio.
- *
- *       Las consultas pueden llegar de dos formas:
- *
- *       **Por botón (UI):** el frontend manda el texto del botón como `mensaje`. Por ejemplo, cuando el cliente toca "Ver catálogo", el frontend envía `{ "mensaje": "ver catálogo", ... }`.
- *
- *       **Por palabra (texto libre):** el cliente escribe directamente en el chat. El bot detecta keywords en el texto y responde con la FAQ que más coincide. Si ninguna coincide, responde con un mensaje genérico del emprendedor.
- *
- *       **Ejemplos de prueba por emprendedor:**
- *
- *       Panadería García (usuarioId: 1) — probar con: "hacen envíos?", "cómo pago", "quiero encargar una torta"
- *       ```json
- *       { "mensaje": "hacen envíos?", "sessionId": "cliente-1", "usuarioId": 1 }
- *       ```
- *
- *       Ferretería López (usuarioId: 2) — probar con: "tienen garantía?", "hacen entregas?", "puedo devolver?"
- *       ```json
- *       { "mensaje": "tienen garantía?", "sessionId": "cliente-2", "usuarioId": 2 }
- *       ```
- *
- *       Ropa & Accesorios Mía (usuarioId: 3) — sin FAQs, siempre cae al fallback de keywords
- *       ```json
- *       { "mensaje": "hola", "sessionId": "cliente-3", "usuarioId": 3 }
- *       ```
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [mensaje]
- *             properties:
- *               mensaje:
- *                 type: string
- *                 example: Hola, quiero ver los productos
- *               sessionId:
- *                 type: string
- *                 example: usuario-123
- *                 description: ID de sesión para mantener contexto conversacional (opcional)
- *               usuarioId:
- *                 type: integer
- *                 example: 1
- *                 description: ID del emprendedor — activa el modo DB con FAQs personalizadas (opcional)
- *     responses:
- *       200:
- *         description: Respuesta del bot
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 respuesta:
- *                   type: string
- *                 sessionId:
- *                   type: string
- *                 intencion:
- *                   type: string
- *                 fuente:
- *                   type: string
- *                   enum: [db, fallback]
- *                   description: '"db" si respondió con FAQs del emprendedor, "fallback" si usó keywords hardcodeadas'
- *       400:
- *         description: mensaje es requerido
+ * post:
+ * tags: [Chatbot]
+ * summary: Procesa acciones de botones o ingreso de datos del cliente
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required: [accion, sessionId, botId]
+ * properties:
+ * accion:
+ * type: string
+ * description: ID de la acción del botón (ej. MOSTRAR_FAQS, DERIVAR_HUMANO, ENVIAR_DATOS)
+ * sessionId:
+ * type: string
+ * botId:
+ * type: string
+ * datosCliente:
+ * type: string
+ * description: El texto libre que ingresa el usuario cuando se le habilitó el input
+ * responses:
+ * 200:
+ * description: Siguiente paso del flujo
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * respuesta:
+ * type: string
+ * botones:
+ * type: array
+ * requiereInput:
+ * type: boolean
+ * description: Si es true, el frontend debe habilitar el teclado al usuario.
+ * contexto:
+ * type: string
+ * description: Indica en qué estado quedó la conversación (ej. ESPERANDO_DATOS_CATALOGO)
  */
 router.post('/chat', chat);
 
@@ -126,6 +98,6 @@ router.post('/chat', chat);
  *       400:
  *         description: from y body son requeridos
  */
-router.post('/whatsapp-mock', whatsappMock);
+// router.post('/whatsapp-mock', whatsappMock);
 
 export default router;

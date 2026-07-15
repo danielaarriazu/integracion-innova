@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verificarToken, optionalToken } from '../middlewares/auth.middleware';
+import { verificarToken } from '../middlewares/auth.middleware';
 import { getConsultas, postConsulta, getConsulta, cerrarConsulta, derivarConsulta, postConsultaProducto } from '../controllers/consultations.controller';
 
 const router = Router();
@@ -102,7 +102,7 @@ router.get('/', verificarToken, getConsultas);
  *       400:
  *         description: usuarioId es requerido
  */
-router.post('/', optionalToken, postConsulta);
+//router.post('/', optionalToken, postConsulta);
 
 /**
  * @swagger

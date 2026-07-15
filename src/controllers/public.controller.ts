@@ -18,3 +18,21 @@ export const getFAQsPublicas = async (
     next(error);
   }
 };
+
+export const getChatInit = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const initData = await publicService.obtenerInitBot(req.params.slug);
+    
+    res.status(200).json({ success: true, data: initData });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'BOT_NOT_FOUND') {
+      res.status(404).json({ success: false, error: 'Negocio o bot no encontrado.' });
+      return;
+    }
+    next(error);
+  }
+};

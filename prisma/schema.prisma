@@ -202,12 +202,12 @@ model Consulta {
   id                 String    @id @default(uuid())
   usuarioId          String    @unique
   estadoConsultaId   String
-  tipoConsulta       String?
-  prioridad          String?
-  canal              String?
-  asunto             String?
-  descripcion        String?
-  derivadaA          String?
+  tipoConsulta       String?    //
+  prioridad          String?   // no va
+  canal              String?  // no va
+  asunto             String?   // presupuesto - representante
+  descripcion        String?    
+  derivadaA          String?   //bool
   fechaCreacion      DateTime  @default(now())
   fechaActualizacion DateTime  @updatedAt
   fechaCierre        DateTime?
@@ -222,7 +222,7 @@ model Consulta {
   @@map("consulta")
 }
 
-// 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
+// rediseñar 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
 model Mensaje {
   id                 String   @id @default(uuid())
   consultaId         String
@@ -257,7 +257,7 @@ model Adjunto {
   @@map("adjunto")
 }
 
-// 8. LEAD — datos de contacto capturados en la conversación (opcional por consulta)
+// 8. LEAD — datos de contacto capturados en la conversación (opcional por consulta) /// no va
 model Lead {
   id                 String   @id @default(uuid())
   consultaId         String   @unique
