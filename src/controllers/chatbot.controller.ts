@@ -1,6 +1,3 @@
-// POST /api/chatbot/chat
-// Motor inteligente: si se envía usuarioId usa DB (ConfiguracionBot + FAQ.keywords).
-// Si no hay usuarioId, o la DB no está disponible, usa keywords hardcodeadas como fallback.
 import { Request, Response } from 'express';
 import { procesarAccionBot } from '../services/chatbot.service';
 
@@ -9,7 +6,7 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
     const { accion, sessionId, botId, datosCliente, contexto } = req.body;
     
     if (!accion || !sessionId || !botId) {
-      res.status(400).json({ error: 'Faltan parámetros requeridos (accion, sessionId, botId)' });
+      res.status(400).json({ error: 'Faltan parámetros: accion, sessionId, botId' });
       return;
     }
 

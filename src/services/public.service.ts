@@ -54,8 +54,8 @@ export const obtenerInitBot= async (slug: string) => {
     }
   ]
   return {
-    botId:bot.id,
-    nombre: bot.nombre || 'Asistente Virtual',
+     botId:bot.id,
+    nombre: bot.nombreNegocio || 'Asistente Virtual',
     mensajeBienvenida: bot.mensajeBienvenida || '¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?',
     botonesMenu
   };

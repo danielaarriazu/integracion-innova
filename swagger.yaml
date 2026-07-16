@@ -1897,3 +1897,46 @@ paths:
               example:
                 success: false
                 error: "Negocio no encontrado."
+paths:
+  /api/public/chatbot/{slug}/init:
+    get:
+      tags: [Chatbot Público]
+      summary: Inicializa el chatbot devolviendo el saludo y los 4 botones principales.
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Datos de inicialización del bot.
+
+  /api/chatbot/chat:
+    post:
+      tags: [Chatbot Motor]
+      summary: Procesa las acciones enviadas por el frontend.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accion, sessionId, botId]
+              properties:
+                accion:
+                  type: string
+                  description: "Ej: MOSTRAR_CATALOGO, DERIVAR_HUMANO, ENVIAR_DATOS"
+                sessionId:
+                  type: string
+                botId:
+                  type: string
+                contexto:
+                  type: string
+                  description: "Estado actual de la conversación"
+                datosCliente:
+                  type: object
+                  description: "Texto ingresado por el usuario o datos del carrito"
+      responses:
+        200:
+          description: Respuesta del motor con el siguiente paso.
