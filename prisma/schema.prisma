@@ -111,20 +111,20 @@ model Faq {
 }
 
 model Producto {
-  id    String           @id @default(uuid())
-  botId String
-  bot   ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
-
-  nombre      String
-  descripcion String? @db.Text
-  precio      Decimal @db.Decimal(10, 2)
-  stock       Int     @default(0)
-  urlImagen   String?
-  activo      Boolean @default(true)
-
-  fechaCreacion      DateTime           @default(now())
-  fechaActualizacion DateTime           @updatedAt
-  ConsultaProducto   ConsultaProducto[]
+  id                  String           @id @default(uuid())
+  botId               String
+  bot                 ConfiguracionBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+  
+  nombre              String
+  descripcion         String?          @db.Text
+  precio              Decimal          @db.Decimal(10, 2)
+  stock               Int              @default(0)
+  urlImagen           String?
+  activo              Boolean          @default(true) 
+  
+  fechaCreacion       DateTime         @default(now())
+  fechaActualizacion  DateTime         @updatedAt
+  consultas           ConsultaProducto[]
 }
 
 model SesionChat {
@@ -231,84 +231,42 @@ model Consulta {
   @@index([sessionAnonimaId])
 }
 
-// rediseñar 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
 model Mensaje {
-  id                 String   @id @default(uuid())
+  id                 String    @id @default(uuid())
   consultaId         String
+  consulta           Consulta  @relation(fields: [consultaId], references: [id], onDelete: Cascade)
   mensajePadreId     String?
+  mensajePadre       Mensaje?  @relation("MensajeHilo", fields: [mensajePadreId], references: [id])
+  respuestas         Mensaje[] @relation("MensajeHilo")
   emisor             String
-  contenido          String
-  tipoMensaje        String?
-  fechaCreacion      DateTime @default(now())
-  fechaActualizacion DateTime @updatedAt
-  leido              Boolean  @default(false)
+  contenido          String    @db.Text
+  tipoMensaje        String?   @default("texto")
+  leido              Boolean   @default(false)
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime  @updatedAt
 
-  consulta     Consulta  @relation(fields: [consultaId], references: [id])
-  mensajePadre Mensaje?  @relation("MensajeHilo", fields: [mensajePadreId], references: [id])
-  respuestas   Mensaje[] @relation("MensajeHilo")
-  adjuntos     Adjunto[]
-
-  @@map("mensaje")
+  @@index([consultaId, fechaCreacion])
 }
 
-// 7. ADJUNTO — archivos adjuntos a mensajes  => se puede dejar para posible escalamiento. aunque
-model Adjunto {
-  id            String   @id @default(uuid())
-  mensajeId     String
-  url           String
-  tipo          String?
-  nombre        String?
-  tamano        String?
-  fechaCreacion DateTime @default(now())
-
-  mensaje Mensaje @relation(fields: [mensajeId], references: [id])
-
-  @@map("adjunto")
-}
-
-// 8. LEAD — datos de contacto capturados en la conversación (opcional por consulta) /// no va
-model Lead {
-  id                 String   @id @default(uuid())
-  consultaId         String   @unique
-  asignadoA          Int?
-  nombre             String?
-  email              String?
-  telefono           String?
-  empresa            String?
-  motivoInteres      String?
-  estado             String?
-  fechaCreacion      DateTime @default(now())
-  fechaActualizacion DateTime @updatedAt
-
-  consulta Consulta @relation(fields: [consultaId], references: [id])
-
-  @@map("lead")
-}
-
-// 10. CONSULTA_PRODUCTO — tabla intermedia Consulta ↔ Producto (N a N)
 model ConsultaProducto {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   consultaId String
-
+  consulta   Consulta @relation(fields: [consultaId], references: [id], onDelete: Cascade)
   productoId String
-  cantidad   Int?
-  detalle    String?
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  cantidad   Int      @default(1)
+  fecha      DateTime @default(now())
 
-  consulta Consulta @relation(fields: [consultaId], references: [id])
-  producto Producto @relation(fields: [productoId], references: [id])
-
-  @@map("consulta_producto")
+  @@unique([consultaId, productoId])
 }
 
-// 13. CONSULTA_FAQ — tabla intermedia Consulta ↔ FAQ (N a N)
-model ConsultaFaq {
-  id            String   @id @default(uuid())
-  consultaId    String
-  faqId         String
-  fechaConsulta DateTime @default(now())
+enum EstadoConsulta {
+  NUEVA
+  EN_PROCESO
+  CERRADA
+}
 
-  consulta Consulta @relation(fields: [consultaId], references: [id])
-  faq      Faq      @relation(fields: [faqId], references: [id])
-
-  @@map("consulta_faq")
+enum CerradaPor {
+  BOT
+  EMPRENDEDOR
 }

@@ -1897,6 +1897,7 @@ paths:
               example:
                 success: false
                 error: "Negocio no encontrado."
+<<<<<<< HEAD
 paths:
   /api/public/chatbot/{slug}/init:
     get:
@@ -1916,12 +1917,54 @@ paths:
     post:
       tags: [Chatbot Motor]
       summary: Procesa las acciones enviadas por el frontend.
+=======
+
+  /api/consultations:
+    get:
+      summary: Listar consultas del emprendedor autenticado
+      tags: [Consultas]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Consultas ordenadas por actividad reciente, con sus mensajes
+        '401':
+          description: Token ausente, inválido o expirado
+
+  /api/consultations/{id}:
+    get:
+      summary: Obtener una consulta propia por ID
+      tags: [Consultas]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Consulta encontrada }
+        '404': { description: Consulta inexistente o perteneciente a otro usuario }
+
+  /api/consultations/{id}/estado:
+    patch:
+      summary: Tomar, cerrar o reabrir una consulta
+      tags: [Consultas]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+>>>>>>> repo-sandra/sandra/swagger-keywords
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+<<<<<<< HEAD
               required: [accion, sessionId, botId]
               properties:
                 accion:
@@ -1940,3 +1983,67 @@ paths:
       responses:
         200:
           description: Respuesta del motor con el siguiente paso.
+=======
+              required: [estado]
+              properties:
+                estado:
+                  type: string
+                  enum: [nueva, en_proceso, cerrada]
+      responses:
+        '200': { description: Estado actualizado }
+        '404': { description: Consulta inexistente o perteneciente a otro usuario }
+
+  /api/public/chatbot/{slug}/consultations:
+    post:
+      summary: Crear una consulta desde el chatbot público
+      tags: [Público, Consultas]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionAnonimaId: { type: string }
+                clienteNombre: { type: string }
+                clienteTelefono: { type: string }
+                canal: { type: string, enum: [web, whatsapp] }
+                asunto: { type: string }
+                descripcion: { type: string }
+      responses:
+        '201': { description: Consulta creada }
+        '404': { description: Bot inexistente o inactivo }
+
+  /api/public/chatbot/{slug}/consultations/{id}/messages:
+    post:
+      summary: Agregar un mensaje a una consulta pública
+      tags: [Público, Consultas]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emisor, contenido]
+              properties:
+                emisor: { type: string, enum: [cliente, usuario, bot] }
+                contenido: { type: string }
+                tipoMensaje: { type: string }
+      responses:
+        '201': { description: Mensaje guardado }
+        '404': { description: Consulta no encontrada para ese bot }
+>>>>>>> repo-sandra/sandra/swagger-keywords
