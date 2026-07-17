@@ -18,8 +18,10 @@ import path from 'path';
 import swaggerSpec from './config/swagger';
 
 import chatbotRoutes from './routes/chatbot.routes';
-import consultationsRoutes from './routes/consultations.routes';
+import consultationsRoutes from './routes/consultation.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
+import consultationRoutes from './routes/consultation.routes';
+
 
 const app = express();
 
@@ -82,6 +84,7 @@ app.use('/api/bot', botRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/consultations', consultationRoutes);
 app.use(errorHandler);
 
 app.use('/demo', express.static(path.join(__dirname, '../demo')));

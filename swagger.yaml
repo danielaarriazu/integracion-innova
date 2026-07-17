@@ -1926,7 +1926,7 @@ paths:
               properties:
                 accion:
                   type: string
-                  description: "Ej: MOSTRAR_CATALOGO, DERIVAR_HUMANO, ENVIAR_DATOS"
+                  description: "Ej: MOSTRAR_CATALOGO', 'DERIVAR_HUMANO', 'SOLICITAR_PRESUPUESTO', 'MOSTRAR_FAQS', 'MOSTRAR_HORARIOS', ENVIAR_DATOS"
                 sessionId:
                   type: string
                 botId:

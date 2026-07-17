@@ -25,7 +25,8 @@ model Usuario {
   bot               ConfiguracionBot?
   historialSesiones HistorialSesion[]
   actividades       RegistroActividad[]
-  Consulta          Consulta?
+  Consulta          Consulta?           @relation(fields: [consultaId], references: [id])
+  consultaId        String?
 }
 
 model HistorialSesion {
@@ -69,6 +70,7 @@ model ConfiguracionBot {
   sesiones      SesionChat[]
   rubroId       String?
   rubro         Rubro?         @relation(fields: [rubroId], references: [id])
+  Consulta      Consulta[]
 }
 
 model Rubro {
@@ -159,6 +161,20 @@ enum EstadoChat {
   HUMANO_ATENDIENDO
 }
 
+enum EstadoConsulta {
+  NUEVA
+  EN_PROCESO
+  RESUELTA
+  CERRADA
+}
+
+enum CerradaPor {
+  BOT
+  ADMIN
+  EMPRENDEDOR
+  CLIENTE
+}
+
 model RegistroActividad {
   id          String   @id @default(uuid())
   usuarioId   String
@@ -185,41 +201,34 @@ model EventoTelemetry {
   @@map("eventos_telemetry")
 }
 
-// 5. ESTADO_CONSULTA — estados posibles de una consulta  => estado consulta lo pondria en consulta, como atributo
-model EstadoConsulta {
-  id            String   @id @default(uuid())
-  nombre        String // nueva | en_proceso | respondida | derivada | cerrada
-  descripcion   String?
-  fechaCreacion DateTime @default(now())
-
-  consultas Consulta[]
-
-  @@map("estado_consulta")
-}
-
 // 4. CONSULTA — núcleo del sistema, registra cada interacción
 model Consulta {
-  id                 String    @id @default(uuid())
-  usuarioId          String    @unique
-  estadoConsultaId   String
-  tipoConsulta       String?    //
-  prioridad          String?   // no va
-  canal              String?  // no va
-  asunto             String?   // presupuesto - representante
-  descripcion        String?    
-  derivadaA          String?   //bool
-  fechaCreacion      DateTime  @default(now())
-  fechaActualizacion DateTime  @updatedAt
+  id                 String             @id @default(uuid())
+  botId              String
+  bot                ConfiguracionBot   @relation(fields: [botId], references: [id], onDelete: Cascade)
+  sessionAnonimaId   String?
+  clienteNombre      String?
+  clienteTelefono    String?
+  estado             EstadoConsulta     @default(NUEVA)
+  derivada           Boolean            @default(false)
+  cerradaPor         CerradaPor?
+  tipoConsulta       String?
+  prioridad          String?
+  canal              String             @default("web")
+  asunto             String?
+  descripcion        String?            @db.Text
+  derivadaA          String?
+  fechaCreacion      DateTime           @default(now())
+  fechaActualizacion DateTime           @updatedAt
   fechaCierre        DateTime?
+  mensajes           Mensaje[]
+  productos          ConsultaProducto[]
+  Usuario            Usuario[]
+  Lead               Lead?
+  ConsultaFaq        ConsultaFaq[]
 
-  usuario           Usuario            @relation(fields: [usuarioId], references: [id])
-  estadoConsulta    EstadoConsulta     @relation(fields: [estadoConsultaId], references: [id])
-  mensajes          Mensaje[]
-  lead              Lead?
-  consultaProductos ConsultaProducto[]
-  consultaFaqs      ConsultaFaq[]
-
-  @@map("consulta")
+  @@index([botId, fechaActualizacion])
+  @@index([sessionAnonimaId])
 }
 
 // rediseñar 6. MENSAJE — historial de mensajes dentro de cada consulta (autorreferencial)
